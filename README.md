@@ -1,19 +1,19 @@
-# comrak
+# comrak-ext
 
-<!-- [![downloads](https://static.pepy.tech/badge/comrak/month)](https://pepy.tech/project/comrak) -->
+<!-- [![downloads](https://static.pepy.tech/badge/comrak-ext/month)](https://pepy.tech/project/comrak-ext) -->
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![pdm-managed](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm.fming.dev)
-[![PyPI](https://img.shields.io/pypi/v/comrak.svg)](https://pypi.org/project/comrak)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/comrak.svg)](https://pypi.org/project/comrak)
-[![License](https://img.shields.io/pypi/l/comrak.svg)](https://pypi.python.org/pypi/comrak)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/lmmx/comrak/master.svg)](https://results.pre-commit.ci/latest/github/lmmx/comrak/master)
+[![PyPI](https://img.shields.io/pypi/v/comrak-ext.svg)](https://pypi.org/project/comrak-ext)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/comrak-ext.svg)](https://pypi.org/project/comrak-ext)
+[![License](https://img.shields.io/pypi/l/comrak-ext.svg)](https://pypi.python.org/pypi/comrak-ext)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Martin005/comrak-ext/master.svg)](https://results.pre-commit.ci/latest/github/Martin005/comrak-ext/master)
 
-Python bindings for the Comrak Rust library, a fast CommonMark/GFM parser
+Extended Python bindings for the Comrak Rust library, a fast CommonMark/GFM parser. Fork of [lmmx/comrak](https://github.com/lmmx/comrak).
 
 ## Installation
 
 ```bash
-pip install comrak
+pip install comrak-ext
 ```
 
 ### Requirements
@@ -105,7 +105,7 @@ Tested with small (8 lines) and medium (1200 lines) markdown strings
 
 ## Contributing
 
-Maintained by [lmmx](https://github.com/lmmx). Contributions welcome!
+Maintained by [Martin005](https://github.com/Martin005). Contributions welcome!
 
 1. **Issues & Discussions**: Please open a GitHub issue or discussion for bugs, feature requests, or questions.
 2. **Pull Requests**: PRs are welcome!
@@ -115,4 +115,4 @@ Maintained by [lmmx](https://github.com/lmmx). Contributions welcome!
 
 ## License
 
-Licensed under the 2-Clause BSD License. See [LICENSE](https://github.com/lmmx/comrak/blob/master/LICENSE) for all the details.
+Licensed under the 2-Clause BSD License. See [LICENSE](https://github.com/Martin005/comrak-ext/blob/master/LICENSE) for all the details.

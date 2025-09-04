@@ -26,7 +26,7 @@ jobs:
     #   (
     #     (
     #       (github.event_name == 'push')
-    #       || (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'lmmx')
+    #       || (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'Martin005')
     #     )
     #     &&
     #     (
@@ -193,14 +193,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: "wheels-*/*"
       - name: Publish to PyPI
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
           command: upload
           args: --non-interactive --skip-existing wheels-*/*
