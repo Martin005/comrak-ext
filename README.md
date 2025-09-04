@@ -24,19 +24,75 @@ pip install comrak
 
 Fast Markdown to HTML parser in Rust, shipped for Python via PyO3.
 
+## API
+
+### `render_markdown`
+
+Render Markdown to HTML:
+
+```python
+from comrak import ExtensionOptions, render_markdown
+extension_options = ExtensionOptions()
+render_markdown("foo :smile:", extension_options)
+# '<p>foo :smile:</p>\n'
+
+extension_options.shortcodes = True
+render_markdown("foo :smile:", extension_options)
+# '<p>foo 😄</p>\n'
+```
+
+### `render_markdown_to_commonmark`
+
+Render Markdown to CommonMark:
+
+```python
+from comrak import RenderOptions, ListStyleType, render_markdown_to_commonmark
+
+render_options = RenderOptions()
+render_markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
+
+# '- one\n- two\n- three\n' – default is Dash
+render_options.list_style = ListStyleType.Plus
+render_markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
+# '+ one\n+ two\n+ three\n'
+```
+
+### `parse_markdown`
+
+Parse Markdown into an abstract syntax tree (AST):
+
+```python
+from comrak import ExtensionOptions, Document, Text, Paragraph, parse_markdown
+
+extension_options = ExtensionOptions()
+extension_options.front_matter_delimiter = "---"
+
+md_content = """---
+This is a text in FrontMatter
+---
+
+Hello, Markdown!
+"""
+
+x = parse_markdown(md_content, extension_options)
+assert isinstance(x.node_value, Document)
+assert not hasattr(x.node_value, "value")
+assert len(x.children) == 2
+
+assert isinstance(x.children[0].node_value, FrontMatter)
+assert isinstance(x.children[0].node_value.value, str)
+assert x.children[0].node_value.value.strip() == "---\nThis is a text in FrontMatter\n---"
+
+assert isinstance(x.children[1].node_value, Paragraph)
+assert len(x.children[1].children) == 1
+assert isinstance(x.children[1].children[0].node_value, Text)
+assert isinstance(x.children[1].children[0].node_value.value, str)
+assert x.children[1].children[0].node_value.value == "Hello, Markdown!"
+```
+
 ### Options
 
-All options are exposed in a simple manner:
-
-```py
->>> import comrak
->>> opts = comrak.ExtensionOptions()
->>> comrak.render_markdown("foo :smile:", extension_options=opts)
-'<p>foo :smile:</p>\n'
->>> opts.shortcodes = True
->>> comrak.render_markdown("foo :smile:", extension_options=opts)
-'<p>foo 😄</p>\n'
-```
+All options are exposed in a simple manner and can be used with both `render_markdown`, `render_markdown_to_commonmark`, and `parse_markdown`.
 
 Refer to the [Comrak docs](https://docs.rs/comrak/latest/comrak/struct.Options.html) for all available options.
 

@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 // Import the Comrak (Rust) types under `comrak_lib::`
 use comrak_lib::{
-    ExtensionOptions as ComrakExtensionOptions, ListStyleType, ParseOptions as ComrakParseOptions,
+    ExtensionOptions as ComrakExtensionOptions, ParseOptions as ComrakParseOptions,
     RenderOptions as ComrakRenderOptions,
 };
 
@@ -154,6 +154,14 @@ impl PyParseOptions {
     }
 }
 
+#[pyclass(name="ListStyleType")]
+#[derive(Clone)]
+pub enum PyListStyleType {
+    Dash = 45,
+    Plus = 43,
+    Star = 42,
+}
+
 /// Python class that mirrors Comrak’s `RenderOptions`
 #[pyclass(name = "RenderOptions")]
 #[derive(Clone)]
@@ -171,7 +179,7 @@ pub struct PyRenderOptions {
     #[pyo3(get, set)]
     pub escape: bool,
     #[pyo3(get, set)]
-    pub list_style: u8, // store 42 = '*', 43 = '+', 45 = '-'
+    pub list_style: PyListStyleType,
     #[pyo3(get, set)]
     pub sourcepos: bool,
     #[pyo3(get, set)]
@@ -205,9 +213,9 @@ impl PyRenderOptions {
         opts.escape = self.escape;
         // convert integer to ListStyleType
         opts.list_style = match self.list_style {
-            43 => ListStyleType::Plus, // '+'
-            42 => ListStyleType::Star, // '*'
-            _ => ListStyleType::Dash,  // '-'
+            PyListStyleType::Dash => comrak_lib::ListStyleType::Dash,
+            PyListStyleType::Plus => comrak_lib::ListStyleType::Plus,
+            PyListStyleType::Star => comrak_lib::ListStyleType::Star,
         };
         opts.sourcepos = self.sourcepos;
         opts.escaped_char_spans = self.escaped_char_spans;
@@ -234,7 +242,11 @@ impl PyRenderOptions {
             width: defaults.width,
             unsafe_: defaults.unsafe_,
             escape: defaults.escape,
-            list_style: defaults.list_style as u8, // 45 if dash
+            list_style: match defaults.list_style {
+                comrak_lib::ListStyleType::Dash => PyListStyleType::Dash,
+                comrak_lib::ListStyleType::Plus => PyListStyleType::Plus,
+                comrak_lib::ListStyleType::Star => PyListStyleType::Star,
+            },
             sourcepos: defaults.sourcepos,
             escaped_char_spans: defaults.escaped_char_spans,
             ignore_setext: defaults.ignore_setext,
