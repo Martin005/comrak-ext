@@ -5,8 +5,8 @@ requires = [
 build-backend = "maturin"
 
 [project]
-name = "comrak"
-description = "Python bindings for the Comrak Rust library, a fast CommonMark/GFM parser"
+name = "comrak-ext"
+description = "Extended Python bindings for the Comrak Rust library, a fast CommonMark/GFM parser"
 classifiers = [
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
@@ -22,7 +22,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9"
 ]
 authors = [
-  {email = "louismmx@gmail.com", name = "Louis Maddox"}
+  {email = "chrastek12@gmail.com", name = "Martin Chrástek"}
 ]
 keywords = [
   "markdown",
@@ -34,7 +34,7 @@ keywords = [
 ]
 readme = "README.md"
 requires-python = ">=3.9"
-version = "0.0.6"
+version = "0.1.0"
 
 [project.license]
 file = "LICENSE"
@@ -52,8 +52,8 @@ bench = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/lmmx/comrak"
-Repository = "https://github.com/lmmx/comrak.git"
+Homepage = "https://github.com/Martin005/comrak-ext"
+Repository = "https://github.com/Martin005/comrak-ext.git"
 
 [tool.maturin]
 features = [
