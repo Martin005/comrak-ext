@@ -7,8 +7,8 @@ use comrak_lib::{
 };
 
 /// Python class that mirrors Comrak’s `ExtensionOptions`
-#[pyclass(name = "ExtensionOptions", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "ExtensionOptions", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyExtensionOptions {
     pub strikethrough: bool,
     pub tagfilter: bool,
@@ -146,8 +146,8 @@ impl PyExtensionOptions {
 }
 
 /// Python class that mirrors Comrak’s `ParseOptions`
-#[pyclass(name = "ParseOptions", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "ParseOptions", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyParseOptions {
     pub smart: bool,
     pub default_info_string: Option<String>,
@@ -195,8 +195,8 @@ pub enum PyListStyleType {
 }
 
 /// Python class that mirrors Comrak’s `RenderOptions`
-#[pyclass(name = "RenderOptions", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "RenderOptions", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyRenderOptions {
     pub hardbreaks: bool,
     pub github_pre_lang: bool,
