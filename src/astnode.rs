@@ -1,8 +1,8 @@
 use comrak_lib::nodes::*;
 use pyo3::{prelude::*, pyclass};
 
-#[pyclass(name = "LineColumn", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "LineColumn", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyLineColumn {
     pub line: usize,
     pub column: usize,
@@ -25,8 +25,8 @@ impl PyLineColumn {
     }
 }
 
-#[pyclass(name = "Sourcepos", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "Sourcepos", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PySourcepos {
     pub start: PyLineColumn,
     pub end: PyLineColumn,
@@ -49,8 +49,8 @@ impl PySourcepos {
     }
 }
 
-#[pyclass(name = "NodeCode", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeCode", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeCode {
     pub num_backticks: usize,
     pub literal: String,
@@ -76,8 +76,8 @@ impl PyNodeCode {
     }
 }
 
-#[pyclass(name = "NodeHtmlBlock", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeHtmlBlock", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeHtmlBlock {
     pub block_type: u8,
     pub literal: String,
@@ -156,8 +156,8 @@ impl From<TableAlignment> for PyTableAlignment {
     }
 }
 
-#[pyclass(name = "NodeList", get_all, set_all)]
-#[derive(Clone, Copy)]
+#[pyclass(name = "NodeList", get_all, set_all, eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyNodeList {
     pub list_type: PyListType,
     pub marker_offset: usize,
@@ -210,8 +210,8 @@ impl PyNodeList {
     }
 }
 
-#[pyclass(name = "NodeDescriptionItem", get_all, set_all)]
-#[derive(Clone, Copy)]
+#[pyclass(name = "NodeDescriptionItem", get_all, set_all, eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyNodeDescriptionItem {
     pub marker_offset: usize,
     pub padding: usize,
@@ -240,8 +240,8 @@ impl PyNodeDescriptionItem {
     }
 }
 
-#[pyclass(name = "NodeCodeBlock", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeCodeBlock", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeCodeBlock {
     pub fenced: bool,
     pub fence_char: u8,
@@ -286,8 +286,8 @@ impl PyNodeCodeBlock {
     }
 }
 
-#[pyclass(name = "NodeHeading", get_all, set_all)]
-#[derive(Clone, Copy)]
+#[pyclass(name = "NodeHeading", get_all, set_all, eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyNodeHeading {
     pub level: u8,
     pub setext: bool,
@@ -310,8 +310,8 @@ impl PyNodeHeading {
     }
 }
 
-#[pyclass(name = "NodeTable", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeTable", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeTable {
     pub alignments: Vec<PyTableAlignment>,
     pub num_columns: usize,
@@ -352,8 +352,8 @@ impl PyNodeTable {
     }
 }
 
-#[pyclass(name = "NodeLink", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeLink", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeLink {
     pub url: String,
     pub title: String,
@@ -376,8 +376,8 @@ impl PyNodeLink {
     }
 }
 
-#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeFootnoteDefinition {
     pub name: String,
     pub total_references: u32,
@@ -403,8 +403,8 @@ impl PyNodeFootnoteDefinition {
     }
 }
 
-#[pyclass(name = "NodeFootnoteReference", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeFootnoteReference", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeFootnoteReference {
     pub name: String,
     pub ref_num: u32,
@@ -429,8 +429,8 @@ impl PyNodeFootnoteReference {
     }
 }
 
-#[pyclass(name = "NodeWikiLink", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeWikiLink", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeWikiLink {
     pub url: String,
 }
@@ -449,8 +449,8 @@ impl PyNodeWikiLink {
     }
 }
 
-#[pyclass(name = "NodeShortCode", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeShortCode", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeShortCode {
     pub code: String,
     pub emoji: String,
@@ -473,8 +473,8 @@ impl PyNodeShortCode {
     }
 }
 
-#[pyclass(name = "NodeMath", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeMath", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeMath {
     pub dollar_math: bool,
     pub display_math: bool,
@@ -503,8 +503,8 @@ impl PyNodeMath {
     }
 }
 
-#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all)]
-#[derive(Clone, Copy)]
+#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all, eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct PyNodeMultilineBlockQuote {
     pub fence_length: usize,
     pub fence_offset: usize,
@@ -552,8 +552,8 @@ impl From<AlertType> for PyAlertType {
     }
 }
 
-#[pyclass(name = "NodeAlert", get_all, set_all)]
-#[derive(Clone)]
+#[pyclass(name = "NodeAlert", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeAlert {
     pub alert_type: PyAlertType,
     pub title: Option<String>,
@@ -594,7 +594,8 @@ impl PyNodeAlert {
     }
 }
 
-#[pyclass(name = "NodeValue", subclass)]
+#[pyclass(name = "NodeValue", subclass, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyNodeValue {}
 
 #[pymethods]
@@ -605,7 +606,8 @@ impl PyNodeValue {
     }
 }
 
-#[pyclass(name = "Document", extends=PyNodeValue)]
+#[pyclass(name = "Document", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyDocument {}
 
 #[pymethods]
@@ -616,7 +618,8 @@ impl PyDocument {
     }
 }
 
-#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyFrontMatter {
     pub value: String,
 }
@@ -629,7 +632,8 @@ impl PyFrontMatter {
     }
 }
 
-#[pyclass(name = "BlockQuote", extends=PyNodeValue)]
+#[pyclass(name = "BlockQuote", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyBlockQuote {}
 
 #[pymethods]
@@ -640,7 +644,8 @@ impl PyBlockQuote {
     }
 }
 
-#[pyclass(name = "List", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "List", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyList {
     pub value: PyNodeList,
 }
@@ -653,7 +658,8 @@ impl PyList {
     }
 }
 
-#[pyclass(name = "Item", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Item", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyItem {
     pub value: PyNodeList,
 }
@@ -666,7 +672,8 @@ impl PyItem {
     }
 }
 
-#[pyclass(name = "DescriptionList", extends=PyNodeValue)]
+#[pyclass(name = "DescriptionList", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyDescriptionList {}
 
 #[pymethods]
@@ -677,7 +684,8 @@ impl PyDescriptionList {
     }
 }
 
-#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyDescriptionItem {
     pub value: PyNodeDescriptionItem,
 }
@@ -690,7 +698,8 @@ impl PyDescriptionItem {
     }
 }
 
-#[pyclass(name = "DescriptionTerm", extends=PyNodeValue)]
+#[pyclass(name = "DescriptionTerm", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyDescriptionTerm {}
 
 #[pymethods]
@@ -701,7 +710,8 @@ impl PyDescriptionTerm {
     }
 }
 
-#[pyclass(name = "DescriptionDetails", extends=PyNodeValue)]
+#[pyclass(name = "DescriptionDetails", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyDescriptionDetails {}
 
 #[pymethods]
@@ -712,7 +722,8 @@ impl PyDescriptionDetails {
     }
 }
 
-#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyCodeBlock {
     pub value: PyNodeCodeBlock,
 }
@@ -725,7 +736,8 @@ impl PyCodeBlock {
     }
 }
 
-#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyHtmlBlock {
     pub value: PyNodeHtmlBlock,
 }
@@ -738,7 +750,8 @@ impl PyHtmlBlock {
     }
 }
 
-#[pyclass(name = "Paragraph", extends=PyNodeValue)]
+#[pyclass(name = "Paragraph", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyParagraph {}
 
 #[pymethods]
@@ -749,7 +762,8 @@ impl PyParagraph {
     }
 }
 
-#[pyclass(name = "Heading", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Heading", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyHeading {
     pub value: PyNodeHeading,
 }
@@ -762,7 +776,8 @@ impl PyHeading {
     }
 }
 
-#[pyclass(name = "ThematicBreak", extends=PyNodeValue)]
+#[pyclass(name = "ThematicBreak", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyThematicBreak {}
 
 #[pymethods]
@@ -773,7 +788,8 @@ impl PyThematicBreak {
     }
 }
 
-#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyFootnoteDefinition {
     pub value: PyNodeFootnoteDefinition,
 }
@@ -786,7 +802,8 @@ impl PyFootnoteDefinition {
     }
 }
 
-#[pyclass(name = "Table", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Table", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyTable {
     pub value: PyNodeTable,
 }
@@ -799,7 +816,8 @@ impl PyTable {
     }
 }
 
-#[pyclass(name = "TableRow", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "TableRow", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyTableRow {
     pub value: bool,
 }
@@ -812,7 +830,8 @@ impl PyTableRow {
     }
 }
 
-#[pyclass(name = "TableCell", extends=PyNodeValue)]
+#[pyclass(name = "TableCell", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyTableCell {}
 
 #[pymethods]
@@ -823,7 +842,8 @@ impl PyTableCell {
     }
 }
 
-#[pyclass(name = "Text", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Text", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyText {
     pub value: String,
 }
@@ -837,7 +857,8 @@ impl PyText {
     }
 }
 
-#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyTaskItem {
     pub value: Option<char>,
 }
@@ -850,7 +871,8 @@ impl PyTaskItem {
     }
 }
 
-#[pyclass(name = "SoftBreak", extends=PyNodeValue)]
+#[pyclass(name = "SoftBreak", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PySoftBreak {}
 
 #[pymethods]
@@ -861,7 +883,8 @@ impl PySoftBreak {
     }
 }
 
-#[pyclass(name = "LineBreak", extends=PyNodeValue)]
+#[pyclass(name = "LineBreak", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyLineBreak {}
 
 #[pymethods]
@@ -872,7 +895,8 @@ impl PyLineBreak {
     }
 }
 
-#[pyclass(name = "Code", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Code", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyCode {
     pub value: PyNodeCode,
 }
@@ -885,7 +909,8 @@ impl PyCode {
     }
 }
 
-#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyHtmlInline {
     pub value: String,
 }
@@ -898,7 +923,8 @@ impl PyHtmlInline {
     }
 }
 
-#[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyRaw {
     pub value: String,
 }
@@ -911,7 +937,8 @@ impl PyRaw {
     }
 }
 
-#[pyclass(name = "Emph", extends=PyNodeValue)]
+#[pyclass(name = "Emph", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyEmph {}
 
 #[pymethods]
@@ -922,7 +949,8 @@ impl PyEmph {
     }
 }
 
-#[pyclass(name = "Strong", extends=PyNodeValue)]
+#[pyclass(name = "Strong", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyStrong {}
 
 #[pymethods]
@@ -933,7 +961,8 @@ impl PyStrong {
     }
 }
 
-#[pyclass(name = "Strikethrough", extends=PyNodeValue)]
+#[pyclass(name = "Strikethrough", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyStrikethrough {}
 
 #[pymethods]
@@ -944,7 +973,8 @@ impl PyStrikethrough {
     }
 }
 
-#[pyclass(name = "Superscript", extends=PyNodeValue)]
+#[pyclass(name = "Superscript", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PySuperscript {}
 
 #[pymethods]
@@ -955,7 +985,8 @@ impl PySuperscript {
     }
 }
 
-#[pyclass(name = "Link", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Link", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyLink {
     pub value: PyNodeLink,
 }
@@ -968,7 +999,8 @@ impl PyLink {
     }
 }
 
-#[pyclass(name = "Image", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Image", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyImage {
     pub value: PyNodeLink,
 }
@@ -981,7 +1013,8 @@ impl PyImage {
     }
 }
 
-#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyFootnoteReference {
     pub value: PyNodeFootnoteReference,
 }
@@ -994,7 +1027,8 @@ impl PyFootnoteReference {
     }
 }
 
-#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyShortCode {
     pub value: PyNodeShortCode,
 }
@@ -1007,7 +1041,8 @@ impl PyShortCode {
     }
 }
 
-#[pyclass(name = "Math", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Math", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyMath {
     pub value: PyNodeMath,
 }
@@ -1020,7 +1055,8 @@ impl PyMath {
     }
 }
 
-#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyMultilineBlockQuote {
     pub value: PyNodeMultilineBlockQuote,
 }
@@ -1033,7 +1069,8 @@ impl PyMultilineBlockQuote {
     }
 }
 
-#[pyclass(name = "Escaped", extends=PyNodeValue)]
+#[pyclass(name = "Escaped", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyEscaped {}
 
 #[pymethods]
@@ -1044,7 +1081,8 @@ impl PyEscaped {
     }
 }
 
-#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyWikiLink {
     pub value: PyNodeWikiLink,
 }
@@ -1057,7 +1095,8 @@ impl PyWikiLink {
     }
 }
 
-#[pyclass(name = "Underline", extends=PyNodeValue)]
+#[pyclass(name = "Underline", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyUnderline {}
 
 #[pymethods]
@@ -1068,7 +1107,8 @@ impl PyUnderline {
     }
 }
 
-#[pyclass(name = "Subscript", extends=PyNodeValue)]
+#[pyclass(name = "Subscript", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PySubscript {}
 
 #[pymethods]
@@ -1079,7 +1119,8 @@ impl PySubscript {
     }
 }
 
-#[pyclass(name = "SpoileredText", extends=PyNodeValue)]
+#[pyclass(name = "SpoileredText", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PySpoileredText {}
 
 #[pymethods]
@@ -1090,7 +1131,8 @@ impl PySpoileredText {
     }
 }
 
-#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyEscapedTag {
     pub value: String,
 }
@@ -1103,7 +1145,8 @@ impl PyEscapedTag {
     }
 }
 
-#[pyclass(name = "Alert", extends=PyNodeValue, get_all, set_all)]
+#[pyclass(name = "Alert", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
 pub struct PyAlert {
     pub value: PyNodeAlert,
 }
