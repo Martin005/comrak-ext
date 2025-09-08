@@ -26,46 +26,45 @@ Fast Markdown to HTML parser in Rust, shipped for Python via PyO3.
 
 ## API
 
-### `render_markdown`
+### `markdown_to_html`
 
 Render Markdown to HTML:
 
 ```python
-from comrak import ExtensionOptions, render_markdown
+from comrak import ExtensionOptions, markdown_to_html
 extension_options = ExtensionOptions()
-render_markdown("foo :smile:", extension_options)
+markdown_to_html("foo :smile:", extension_options)
 # '<p>foo :smile:</p>\n'
 
 extension_options.shortcodes = True
-render_markdown("foo :smile:", extension_options)
+markdown_to_html("foo :smile:", extension_options)
 # '<p>foo 😄</p>\n'
 ```
 
-### `render_markdown_to_commonmark`
+### `markdown_to_commonmark`
 
 Render Markdown to CommonMark:
 
 ```python
-from comrak import RenderOptions, ListStyleType, render_markdown_to_commonmark
+from comrak import RenderOptions, ListStyleType, markdown_to_commonmark
 
 render_options = RenderOptions()
-render_markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
+markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
 
 # '- one\n- two\n- three\n' – default is Dash
 render_options.list_style = ListStyleType.Plus
-render_markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
+markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
 # '+ one\n+ two\n+ three\n'
 ```
 
-### `parse_markdown`
+### `parse_document`
 
 Parse Markdown into an abstract syntax tree (AST):
 
 ```python
-from comrak import ExtensionOptions, Document, Text, Paragraph, parse_markdown
+from comrak import ExtensionOptions, Document, Text, Paragraph, parse_document
 
-extension_options = ExtensionOptions()
-extension_options.front_matter_delimiter = "---"
+extension_options = ExtensionOptions(front_matter_delimiter = "---")
 
 md_content = """---
 This is a text in FrontMatter
@@ -74,7 +73,7 @@ This is a text in FrontMatter
 Hello, Markdown!
 """
 
-x = parse_markdown(md_content, extension_options)
+x = parse_document(md_content, extension_options)
 assert isinstance(x.node_value, Document)
 assert not hasattr(x.node_value, "value")
 assert len(x.children) == 2
@@ -92,7 +91,7 @@ assert x.children[1].children[0].node_value.value == "Hello, Markdown!"
 
 ### Options
 
-All options are exposed in a simple manner and can be used with both `render_markdown`, `render_markdown_to_commonmark`, and `parse_markdown`.
+All options are exposed in a simple manner and can be used with `markdown_to_html`, `markdown_to_commonmark`, and `parse_document`.
 
 Refer to the [Comrak docs](https://docs.rs/comrak/latest/comrak/struct.Options.html) for all available options.
 

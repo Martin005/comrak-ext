@@ -1,28 +1,30 @@
 use pyo3::prelude::*;
 
 // We renamed the Rust library to `comrak_lib`
-use comrak_lib::{markdown_to_html, markdown_to_commonmark, parse_document, Options as ComrakOptions, Arena};
+use comrak_lib::{
+    markdown_to_commonmark, markdown_to_html, parse_document, Arena, Options as ComrakOptions,
+};
 
 // Import the Python option classes we defined
 mod options;
-use options::{PyExtensionOptions, PyParseOptions, PyRenderOptions, PyListStyleType};
+use options::{PyExtensionOptions, PyListStyleType, PyParseOptions, PyRenderOptions};
 mod astnode;
 use astnode::{
-    PyLineColumn, PySourcepos, PyNodeCode, PyNodeHtmlBlock, PyListDelimType, PyListType,
-    PyTableAlignment, PyNodeList, PyNodeDescriptionItem, PyNodeCodeBlock, PyNodeHeading,
-    PyNodeTable, PyNodeLink, PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeWikiLink,
-    PyNodeShortCode, PyNodeMath, PyNodeMultilineBlockQuote, PyAlertType, PyNodeAlert,
-    PyNodeValue, PyDocument, PyFrontMatter, PyBlockQuote, PyList, PyItem, PyDescriptionList,
-    PyDescriptionItem, PyDescriptionTerm, PyDescriptionDetails, PyCodeBlock, PyHtmlBlock,
-    PyParagraph, PyHeading, PyThematicBreak, PyFootnoteDefinition, PyTable, PyTableRow,
-    PyTableCell, PyText, PyTaskItem, PySoftBreak, PyLineBreak, PyCode, PyHtmlInline, PyRaw,
-    PyEmph, PyStrong, PyStrikethrough, PySuperscript, PyLink, PyImage, PyFootnoteReference,
-    PyShortCode, PyMath, PyMultilineBlockQuote, PyEscaped, PyWikiLink, PyUnderline,
-    PySubscript, PySpoileredText, PyEscapedTag, PyAlert, PyAstNode
+    PyAlert, PyAlertType, PyAstNode, PyBlockQuote, PyCode, PyCodeBlock, PyDescriptionDetails,
+    PyDescriptionItem, PyDescriptionList, PyDescriptionTerm, PyDocument, PyEmph, PyEscaped,
+    PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter, PyHeading, PyHtmlBlock,
+    PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType,
+    PyListType, PyMath, PyMultilineBlockQuote, PyNodeAlert, PyNodeCode, PyNodeCodeBlock,
+    PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeHeading,
+    PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath, PyNodeMultilineBlockQuote,
+    PyNodeShortCode, PyNodeTable, PyNodeValue, PyNodeWikiLink, PyParagraph, PyRaw, PyShortCode,
+    PySoftBreak, PySourcepos, PySpoileredText, PyStrikethrough, PyStrong, PySubscript,
+    PySuperscript, PyTable, PyTableAlignment, PyTableCell, PyTableRow, PyTaskItem, PyText,
+    PyThematicBreak, PyUnderline, PyWikiLink,
 };
 
 /// Render a Markdown string to HTML, with optional Extension/Parse/Render overrides.
-#[pyfunction(signature=(text, extension_options=None, parse_options=None, render_options=None))]
+#[pyfunction(name = "markdown_to_html", signature=(text, extension_options=None, parse_options=None, render_options=None))]
 fn render_markdown(
     text: &str,
     extension_options: Option<PyExtensionOptions>,
@@ -49,7 +51,7 @@ fn render_markdown(
 }
 
 /// Convert a Markdown string to CommonMark format.
-#[pyfunction(signature=(text, extension_options=None, parse_options=None, render_options=None))]
+#[pyfunction(name = "markdown_to_commonmark", signature=(text, extension_options=None, parse_options=None, render_options=None))]
 fn render_markdown_to_commonmark(
     text: &str,
     extension_options: Option<PyExtensionOptions>,
@@ -76,7 +78,7 @@ fn render_markdown_to_commonmark(
 }
 
 // Parse a Markdown string into a document structure and return as PyAstNode.
-#[pyfunction(signature=(text, extension_options=None, parse_options=None, render_options=None))]
+#[pyfunction(name = "parse_document", signature=(text, extension_options=None, parse_options=None, render_options=None))]
 fn parse_markdown(
     py: Python,
     text: &str,

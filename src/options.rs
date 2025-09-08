@@ -7,52 +7,30 @@ use comrak_lib::{
 };
 
 /// Python class that mirrors Comrak’s `ExtensionOptions`
-#[pyclass(name = "ExtensionOptions")]
+#[pyclass(name = "ExtensionOptions", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyExtensionOptions {
-    #[pyo3(get, set)]
     pub strikethrough: bool,
-    #[pyo3(get, set)]
     pub tagfilter: bool,
-    #[pyo3(get, set)]
     pub table: bool,
-    #[pyo3(get, set)]
     pub autolink: bool,
-    #[pyo3(get, set)]
     pub tasklist: bool,
-    #[pyo3(get, set)]
     pub superscript: bool,
-    #[pyo3(get, set)]
     pub header_ids: Option<String>,
-    #[pyo3(get, set)]
     pub footnotes: bool,
-    #[pyo3(get, set)]
     pub description_lists: bool,
-    #[pyo3(get, set)]
     pub front_matter_delimiter: Option<String>,
-    #[pyo3(get, set)]
     pub multiline_block_quotes: bool,
-    #[pyo3(get, set)]
     pub alerts: bool,
-    #[pyo3(get, set)]
     pub math_dollars: bool,
-    #[pyo3(get, set)]
     pub math_code: bool,
-    #[pyo3(get, set)]
     pub shortcodes: bool, // if your comrak_lib has the "shortcodes" feature
-    #[pyo3(get, set)]
     pub wikilinks_title_after_pipe: bool,
-    #[pyo3(get, set)]
     pub wikilinks_title_before_pipe: bool,
-    #[pyo3(get, set)]
     pub underline: bool,
-    #[pyo3(get, set)]
     pub subscript: bool,
-    #[pyo3(get, set)]
     pub spoiler: bool,
-    #[pyo3(get, set)]
     pub greentext: bool,
-    #[pyo3(get, set)]
     pub cjk_friendly_emphasis: bool,
 }
 
@@ -87,46 +65,93 @@ impl PyExtensionOptions {
 #[pymethods]
 impl PyExtensionOptions {
     #[new]
-    pub fn new() -> Self {
+    #[pyo3(signature = (
+        strikethrough=None,
+        tagfilter=None,
+        table=None,
+        autolink=None,
+        tasklist=None,
+        superscript=None,
+        header_ids=None,
+        footnotes=None,
+        description_lists=None,
+        front_matter_delimiter=None,
+        multiline_block_quotes=None,
+        alerts=None,
+        math_dollars=None,
+        math_code=None,
+        shortcodes=None, // if your comrak_lib has the "shortcodes" feature
+        wikilinks_title_after_pipe=None,
+        wikilinks_title_before_pipe=None,
+        underline=None,
+        subscript=None,
+        spoiler=None,
+        greentext=None,
+        cjk_friendly_emphasis=None,
+    ))]
+    pub fn new(
+        strikethrough: Option<bool>,
+        tagfilter: Option<bool>,
+        table: Option<bool>,
+        autolink: Option<bool>,
+        tasklist: Option<bool>,
+        superscript: Option<bool>,
+        header_ids: Option<String>,
+        footnotes: Option<bool>,
+        description_lists: Option<bool>,
+        front_matter_delimiter: Option<String>,
+        multiline_block_quotes: Option<bool>,
+        alerts: Option<bool>,
+        math_dollars: Option<bool>,
+        math_code: Option<bool>,
+        shortcodes: Option<bool>, // if your comrak_lib has the "shortcodes" feature
+        wikilinks_title_after_pipe: Option<bool>,
+        wikilinks_title_before_pipe: Option<bool>,
+        underline: Option<bool>,
+        subscript: Option<bool>,
+        spoiler: Option<bool>,
+        greentext: Option<bool>,
+        cjk_friendly_emphasis: Option<bool>,
+    ) -> Self {
         let defaults = ComrakExtensionOptions::default();
         Self {
-            strikethrough: defaults.strikethrough,
-            tagfilter: defaults.tagfilter,
-            table: defaults.table,
-            autolink: defaults.autolink,
-            tasklist: defaults.tasklist,
-            superscript: defaults.superscript,
-            header_ids: defaults.header_ids.clone(),
-            footnotes: defaults.footnotes,
-            description_lists: defaults.description_lists,
-            front_matter_delimiter: defaults.front_matter_delimiter.clone(),
-            multiline_block_quotes: defaults.multiline_block_quotes,
-            alerts: defaults.alerts,
-            math_dollars: defaults.math_dollars,
-            math_code: defaults.math_code,
-            shortcodes: false, // or `defaults.shortcodes` if your version has that
-            wikilinks_title_after_pipe: defaults.wikilinks_title_after_pipe,
-            wikilinks_title_before_pipe: defaults.wikilinks_title_before_pipe,
-            underline: defaults.underline,
-            subscript: defaults.subscript,
-            spoiler: defaults.spoiler,
-            greentext: defaults.greentext,
-            cjk_friendly_emphasis: defaults.cjk_friendly_emphasis,
+            strikethrough: strikethrough.unwrap_or(defaults.strikethrough),
+            tagfilter: tagfilter.unwrap_or(defaults.tagfilter),
+            table: table.unwrap_or(defaults.table),
+            autolink: autolink.unwrap_or(defaults.autolink),
+            tasklist: tasklist.unwrap_or(defaults.tasklist),
+            superscript: superscript.unwrap_or(defaults.superscript),
+            header_ids: header_ids.or(defaults.header_ids.clone()),
+            footnotes: footnotes.unwrap_or(defaults.footnotes),
+            description_lists: description_lists.unwrap_or(defaults.description_lists),
+            front_matter_delimiter: front_matter_delimiter
+                .or(defaults.front_matter_delimiter.clone()),
+            multiline_block_quotes: multiline_block_quotes
+                .unwrap_or(defaults.multiline_block_quotes),
+            alerts: alerts.unwrap_or(defaults.alerts),
+            math_dollars: math_dollars.unwrap_or(defaults.math_dollars),
+            math_code: math_code.unwrap_or(defaults.math_code),
+            shortcodes: shortcodes.unwrap_or(defaults.shortcodes),
+            wikilinks_title_after_pipe: wikilinks_title_after_pipe
+                .unwrap_or(defaults.wikilinks_title_after_pipe),
+            wikilinks_title_before_pipe: wikilinks_title_before_pipe
+                .unwrap_or(defaults.wikilinks_title_before_pipe),
+            underline: underline.unwrap_or(defaults.underline),
+            subscript: subscript.unwrap_or(defaults.subscript),
+            spoiler: spoiler.unwrap_or(defaults.spoiler),
+            greentext: greentext.unwrap_or(defaults.greentext),
+            cjk_friendly_emphasis: cjk_friendly_emphasis.unwrap_or(defaults.cjk_friendly_emphasis),
         }
     }
 }
 
 /// Python class that mirrors Comrak’s `ParseOptions`
-#[pyclass(name = "ParseOptions")]
+#[pyclass(name = "ParseOptions", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyParseOptions {
-    #[pyo3(get, set)]
     pub smart: bool,
-    #[pyo3(get, set)]
     pub default_info_string: Option<String>,
-    #[pyo3(get, set)]
     pub relaxed_tasklist_matching: bool,
-    #[pyo3(get, set)]
     pub relaxed_autolinks: bool,
 }
 
@@ -143,19 +168,26 @@ impl PyParseOptions {
 #[pymethods]
 impl PyParseOptions {
     #[new]
-    pub fn new() -> Self {
+    #[pyo3(signature = (smart=None, default_info_string=None, relaxed_tasklist_matching=None, relaxed_autolinks=None))]
+    pub fn new(
+        smart: Option<bool>,
+        default_info_string: Option<String>,
+        relaxed_tasklist_matching: Option<bool>,
+        relaxed_autolinks: Option<bool>,
+    ) -> Self {
         let defaults = ComrakParseOptions::default();
         Self {
-            smart: defaults.smart,
-            default_info_string: defaults.default_info_string.clone(),
-            relaxed_tasklist_matching: defaults.relaxed_tasklist_matching,
-            relaxed_autolinks: defaults.relaxed_autolinks,
+            smart: smart.unwrap_or(defaults.smart),
+            default_info_string: default_info_string.or(defaults.default_info_string.clone()),
+            relaxed_tasklist_matching: relaxed_tasklist_matching
+                .unwrap_or(defaults.relaxed_tasklist_matching),
+            relaxed_autolinks: relaxed_autolinks.unwrap_or(defaults.relaxed_autolinks),
         }
     }
 }
 
-#[pyclass(name="ListStyleType")]
-#[derive(Clone)]
+#[pyclass(name = "ListStyleType", eq, eq_int)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum PyListStyleType {
     Dash = 45,
     Plus = 43,
@@ -163,42 +195,25 @@ pub enum PyListStyleType {
 }
 
 /// Python class that mirrors Comrak’s `RenderOptions`
-#[pyclass(name = "RenderOptions")]
+#[pyclass(name = "RenderOptions", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyRenderOptions {
-    #[pyo3(get, set)]
     pub hardbreaks: bool,
-    #[pyo3(get, set)]
     pub github_pre_lang: bool,
-    #[pyo3(get, set)]
     pub full_info_string: bool,
-    #[pyo3(get, set)]
     pub width: usize,
-    #[pyo3(get, set)]
     pub unsafe_: bool, // named 'unsafe_' because 'unsafe' is reserved
-    #[pyo3(get, set)]
     pub escape: bool,
-    #[pyo3(get, set)]
     pub list_style: PyListStyleType,
-    #[pyo3(get, set)]
     pub sourcepos: bool,
-    #[pyo3(get, set)]
     pub escaped_char_spans: bool,
-    #[pyo3(get, set)]
     pub ignore_setext: bool,
-    #[pyo3(get, set)]
     pub ignore_empty_links: bool,
-    #[pyo3(get, set)]
     pub gfm_quirks: bool,
-    #[pyo3(get, set)]
     pub prefer_fenced: bool,
-    #[pyo3(get, set)]
     pub figure_with_caption: bool,
-    #[pyo3(get, set)]
     pub tasklist_classes: bool,
-    #[pyo3(get, set)]
     pub ol_width: usize,
-    #[pyo3(get, set)]
     pub experimental_minimize_commonmark: bool,
 }
 
@@ -233,30 +248,68 @@ impl PyRenderOptions {
 #[pymethods]
 impl PyRenderOptions {
     #[new]
-    pub fn new() -> Self {
+    #[pyo3(signature = (
+        hardbreaks=None,
+        github_pre_lang=None,
+        full_info_string=None,
+        width=None,
+        unsafe_=None,
+        escape=None,
+        list_style=None,
+        sourcepos=None,
+        escaped_char_spans=None,
+        ignore_setext=None,
+        ignore_empty_links=None,
+        gfm_quirks=None,
+        prefer_fenced=None,
+        figure_with_caption=None,
+        tasklist_classes=None,
+        ol_width=None,
+        experimental_minimize_commonmark=None,
+    ))]
+    pub fn new(
+        hardbreaks: Option<bool>,
+        github_pre_lang: Option<bool>,
+        full_info_string: Option<bool>,
+        width: Option<usize>,
+        unsafe_: Option<bool>,
+        escape: Option<bool>,
+        list_style: Option<PyListStyleType>,
+        sourcepos: Option<bool>,
+        escaped_char_spans: Option<bool>,
+        ignore_setext: Option<bool>,
+        ignore_empty_links: Option<bool>,
+        gfm_quirks: Option<bool>,
+        prefer_fenced: Option<bool>,
+        figure_with_caption: Option<bool>,
+        tasklist_classes: Option<bool>,
+        ol_width: Option<usize>,
+        experimental_minimize_commonmark: Option<bool>,
+    ) -> Self {
         let defaults = ComrakRenderOptions::default();
         Self {
-            hardbreaks: defaults.hardbreaks,
-            github_pre_lang: defaults.github_pre_lang,
-            full_info_string: defaults.full_info_string,
-            width: defaults.width,
-            unsafe_: defaults.unsafe_,
-            escape: defaults.escape,
-            list_style: match defaults.list_style {
+            hardbreaks: hardbreaks.unwrap_or(defaults.hardbreaks),
+            github_pre_lang: github_pre_lang.unwrap_or(defaults.github_pre_lang),
+            full_info_string: full_info_string.unwrap_or(defaults.full_info_string),
+            width: width.unwrap_or(defaults.width),
+            unsafe_: unsafe_.unwrap_or(defaults.unsafe_),
+            escape: escape.unwrap_or(defaults.escape),
+            list_style: list_style.unwrap_or(match defaults.list_style {
                 comrak_lib::ListStyleType::Dash => PyListStyleType::Dash,
                 comrak_lib::ListStyleType::Plus => PyListStyleType::Plus,
                 comrak_lib::ListStyleType::Star => PyListStyleType::Star,
-            },
-            sourcepos: defaults.sourcepos,
-            escaped_char_spans: defaults.escaped_char_spans,
-            ignore_setext: defaults.ignore_setext,
-            ignore_empty_links: defaults.ignore_empty_links,
-            gfm_quirks: defaults.gfm_quirks,
-            prefer_fenced: defaults.prefer_fenced,
-            figure_with_caption: defaults.figure_with_caption,
-            tasklist_classes: defaults.tasklist_classes,
-            ol_width: defaults.ol_width,
-            experimental_minimize_commonmark: defaults.experimental_minimize_commonmark,
+            }),
+            sourcepos: sourcepos.unwrap_or(defaults.sourcepos),
+            escaped_char_spans: escaped_char_spans.unwrap_or(defaults.escaped_char_spans),
+            ignore_setext: ignore_setext.unwrap_or(defaults.ignore_setext),
+            ignore_empty_links: ignore_empty_links.unwrap_or(defaults.ignore_empty_links),
+            gfm_quirks: gfm_quirks.unwrap_or(defaults.gfm_quirks),
+            prefer_fenced: prefer_fenced.unwrap_or(defaults.prefer_fenced),
+            figure_with_caption: figure_with_caption.unwrap_or(defaults.figure_with_caption),
+            tasklist_classes: tasklist_classes.unwrap_or(defaults.tasklist_classes),
+            ol_width: ol_width.unwrap_or(defaults.ol_width),
+            experimental_minimize_commonmark: experimental_minimize_commonmark
+                .unwrap_or(defaults.experimental_minimize_commonmark),
         }
     }
 }
