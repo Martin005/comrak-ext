@@ -1,8 +1,7 @@
-use pyo3::{prelude::*, pyclass};
 use comrak_lib::nodes::*;
+use pyo3::{prelude::*, pyclass};
 
-
-#[pyclass(name = "LineColumn", get_all)]
+#[pyclass(name = "LineColumn", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyLineColumn {
     pub line: usize,
@@ -18,7 +17,15 @@ impl From<&LineColumn> for PyLineColumn {
     }
 }
 
-#[pyclass(name = "Sourcepos", get_all)]
+#[pymethods]
+impl PyLineColumn {
+    #[new]
+    pub fn new(line: usize, column: usize) -> Self {
+        Self { line, column }
+    }
+}
+
+#[pyclass(name = "Sourcepos", get_all, set_all)]
 #[derive(Clone)]
 pub struct PySourcepos {
     pub start: PyLineColumn,
@@ -34,7 +41,15 @@ impl From<&Sourcepos> for PySourcepos {
     }
 }
 
-#[pyclass(name = "NodeCode", get_all)]
+#[pymethods]
+impl PySourcepos {
+    #[new]
+    pub fn new(start: PyLineColumn, end: PyLineColumn) -> Self {
+        Self { start, end }
+    }
+}
+
+#[pyclass(name = "NodeCode", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeCode {
     pub num_backticks: usize,
@@ -50,7 +65,18 @@ impl From<&NodeCode> for PyNodeCode {
     }
 }
 
-#[pyclass(name = "NodeHtmlBlock", get_all)]
+#[pymethods]
+impl PyNodeCode {
+    #[new]
+    pub fn new(num_backticks: usize, literal: String) -> Self {
+        Self {
+            num_backticks,
+            literal,
+        }
+    }
+}
+
+#[pyclass(name = "NodeHtmlBlock", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeHtmlBlock {
     pub block_type: u8,
@@ -66,8 +92,19 @@ impl From<&NodeHtmlBlock> for PyNodeHtmlBlock {
     }
 }
 
-#[pyclass(name = "ListDelimType")]
-#[derive(Clone, Copy)]
+#[pymethods]
+impl PyNodeHtmlBlock {
+    #[new]
+    pub fn new(block_type: u8, literal: String) -> Self {
+        Self {
+            block_type,
+            literal,
+        }
+    }
+}
+
+#[pyclass(name = "ListDelimType", eq, eq_int)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum PyListDelimType {
     Period,
     Paren,
@@ -82,8 +119,8 @@ impl From<ListDelimType> for PyListDelimType {
     }
 }
 
-#[pyclass(name = "ListType")]
-#[derive(Clone, Copy)]
+#[pyclass(name = "ListType", eq, eq_int)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum PyListType {
     Bullet,
     Ordered,
@@ -98,10 +135,10 @@ impl From<ListType> for PyListType {
     }
 }
 
-#[pyclass(name = "TableAlignment")]
-#[derive(Clone, Copy)]
+#[pyclass(name = "TableAlignment", eq, eq_int)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum PyTableAlignment {
-    #[pyo3(name = "None_")]  // named 'None_' because 'None' is reserved in Python
+    #[pyo3(name = "None_")] // named 'None_' because 'None' is reserved in Python
     None,
     Left,
     Center,
@@ -119,7 +156,7 @@ impl From<TableAlignment> for PyTableAlignment {
     }
 }
 
-#[pyclass(name = "NodeList", get_all)]
+#[pyclass(name = "NodeList", get_all, set_all)]
 #[derive(Clone, Copy)]
 pub struct PyNodeList {
     pub list_type: PyListType,
@@ -147,8 +184,33 @@ impl From<&NodeList> for PyNodeList {
     }
 }
 
+#[pymethods]
+impl PyNodeList {
+    #[new]
+    pub fn new(
+        list_type: PyListType,
+        marker_offset: usize,
+        padding: usize,
+        start: usize,
+        delimiter: PyListDelimType,
+        bullet_char: u8,
+        tight: bool,
+        is_task_list: bool,
+    ) -> Self {
+        Self {
+            list_type,
+            marker_offset,
+            padding,
+            start,
+            delimiter,
+            bullet_char,
+            tight,
+            is_task_list,
+        }
+    }
+}
 
-#[pyclass(name = "NodeDescriptionItem", get_all)]
+#[pyclass(name = "NodeDescriptionItem", get_all, set_all)]
 #[derive(Clone, Copy)]
 pub struct PyNodeDescriptionItem {
     pub marker_offset: usize,
@@ -166,7 +228,19 @@ impl From<&NodeDescriptionItem> for PyNodeDescriptionItem {
     }
 }
 
-#[pyclass(name = "NodeCodeBlock", get_all)]
+#[pymethods]
+impl PyNodeDescriptionItem {
+    #[new]
+    pub fn new(marker_offset: usize, padding: usize, tight: bool) -> Self {
+        Self {
+            marker_offset,
+            padding,
+            tight,
+        }
+    }
+}
+
+#[pyclass(name = "NodeCodeBlock", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeCodeBlock {
     pub fenced: bool,
@@ -190,7 +264,29 @@ impl From<&NodeCodeBlock> for PyNodeCodeBlock {
     }
 }
 
-#[pyclass(name = "NodeHeading", get_all)]
+#[pymethods]
+impl PyNodeCodeBlock {
+    #[new]
+    pub fn new(
+        fenced: bool,
+        fence_char: u8,
+        fence_length: usize,
+        fence_offset: usize,
+        info: String,
+        literal: String,
+    ) -> Self {
+        Self {
+            fenced,
+            fence_char,
+            fence_length,
+            fence_offset,
+            info,
+            literal,
+        }
+    }
+}
+
+#[pyclass(name = "NodeHeading", get_all, set_all)]
 #[derive(Clone, Copy)]
 pub struct PyNodeHeading {
     pub level: u8,
@@ -206,7 +302,15 @@ impl From<&NodeHeading> for PyNodeHeading {
     }
 }
 
-#[pyclass(name = "NodeTable", get_all)]
+#[pymethods]
+impl PyNodeHeading {
+    #[new]
+    pub fn new(level: u8, setext: bool) -> Self {
+        Self { level, setext }
+    }
+}
+
+#[pyclass(name = "NodeTable", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeTable {
     pub alignments: Vec<PyTableAlignment>,
@@ -218,7 +322,11 @@ pub struct PyNodeTable {
 impl From<&NodeTable> for PyNodeTable {
     fn from(table: &NodeTable) -> Self {
         Self {
-            alignments: table.alignments.iter().map(|a| PyTableAlignment::from(*a)).collect(),
+            alignments: table
+                .alignments
+                .iter()
+                .map(|a| PyTableAlignment::from(*a))
+                .collect(),
             num_columns: table.num_columns,
             num_rows: table.num_rows,
             num_nonempty_cells: table.num_nonempty_cells,
@@ -226,9 +334,25 @@ impl From<&NodeTable> for PyNodeTable {
     }
 }
 
+#[pymethods]
+impl PyNodeTable {
+    #[new]
+    pub fn new(
+        alignments: Vec<PyTableAlignment>,
+        num_columns: usize,
+        num_rows: usize,
+        num_nonempty_cells: usize,
+    ) -> Self {
+        Self {
+            alignments,
+            num_columns,
+            num_rows,
+            num_nonempty_cells,
+        }
+    }
+}
 
-
-#[pyclass(name = "NodeLink", get_all)]
+#[pyclass(name = "NodeLink", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeLink {
     pub url: String,
@@ -244,8 +368,15 @@ impl From<&NodeLink> for PyNodeLink {
     }
 }
 
+#[pymethods]
+impl PyNodeLink {
+    #[new]
+    pub fn new(url: String, title: String) -> Self {
+        Self { url, title }
+    }
+}
 
-#[pyclass(name = "NodeFootnoteDefinition", get_all)]
+#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeFootnoteDefinition {
     pub name: String,
@@ -261,7 +392,18 @@ impl From<&NodeFootnoteDefinition> for PyNodeFootnoteDefinition {
     }
 }
 
-#[pyclass(name = "NodeFootnoteReference", get_all)]
+#[pymethods]
+impl PyNodeFootnoteDefinition {
+    #[new]
+    pub fn new(name: String, total_references: u32) -> Self {
+        Self {
+            name,
+            total_references,
+        }
+    }
+}
+
+#[pyclass(name = "NodeFootnoteReference", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeFootnoteReference {
     pub name: String,
@@ -279,7 +421,15 @@ impl From<&NodeFootnoteReference> for PyNodeFootnoteReference {
     }
 }
 
-#[pyclass(name = "NodeWikiLink", get_all)]
+#[pymethods]
+impl PyNodeFootnoteReference {
+    #[new]
+    pub fn new(name: String, ref_num: u32, ix: u32) -> Self {
+        Self { name, ref_num, ix }
+    }
+}
+
+#[pyclass(name = "NodeWikiLink", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeWikiLink {
     pub url: String,
@@ -287,13 +437,19 @@ pub struct PyNodeWikiLink {
 
 impl From<&NodeWikiLink> for PyNodeWikiLink {
     fn from(w: &NodeWikiLink) -> Self {
-        Self {
-            url: w.url.clone(),
-        }
+        Self { url: w.url.clone() }
     }
 }
 
-#[pyclass(name = "NodeShortCode", get_all)]
+#[pymethods]
+impl PyNodeWikiLink {
+    #[new]
+    pub fn new(url: String) -> Self {
+        Self { url }
+    }
+}
+
+#[pyclass(name = "NodeShortCode", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeShortCode {
     pub code: String,
@@ -309,7 +465,15 @@ impl From<&NodeShortCode> for PyNodeShortCode {
     }
 }
 
-#[pyclass(name = "NodeMath", get_all)]
+#[pymethods]
+impl PyNodeShortCode {
+    #[new]
+    pub fn new(code: String, emoji: String) -> Self {
+        Self { code, emoji }
+    }
+}
+
+#[pyclass(name = "NodeMath", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeMath {
     pub dollar_math: bool,
@@ -327,7 +491,19 @@ impl From<&NodeMath> for PyNodeMath {
     }
 }
 
-#[pyclass(name = "NodeMultilineBlockQuote", get_all)]
+#[pymethods]
+impl PyNodeMath {
+    #[new]
+    pub fn new(dollar_math: bool, display_math: bool, literal: String) -> Self {
+        Self {
+            dollar_math,
+            display_math,
+            literal,
+        }
+    }
+}
+
+#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all)]
 #[derive(Clone, Copy)]
 pub struct PyNodeMultilineBlockQuote {
     pub fence_length: usize,
@@ -343,8 +519,19 @@ impl From<&NodeMultilineBlockQuote> for PyNodeMultilineBlockQuote {
     }
 }
 
-#[pyclass(name = "AlertType")]
-#[derive(Clone, Copy)]
+#[pymethods]
+impl PyNodeMultilineBlockQuote {
+    #[new]
+    pub fn new(fence_length: usize, fence_offset: usize) -> Self {
+        Self {
+            fence_length,
+            fence_offset,
+        }
+    }
+}
+
+#[pyclass(name = "AlertType", eq, eq_int)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum PyAlertType {
     Note,
     Tip,
@@ -365,7 +552,7 @@ impl From<AlertType> for PyAlertType {
     }
 }
 
-#[pyclass(name = "NodeAlert", get_all)]
+#[pyclass(name = "NodeAlert", get_all, set_all)]
 #[derive(Clone)]
 pub struct PyNodeAlert {
     pub alert_type: PyAlertType,
@@ -387,258 +574,870 @@ impl From<&NodeAlert> for PyNodeAlert {
     }
 }
 
+#[pymethods]
+impl PyNodeAlert {
+    #[new]
+    pub fn new(
+        alert_type: PyAlertType,
+        title: Option<String>,
+        multiline: bool,
+        fence_length: usize,
+        fence_offset: usize,
+    ) -> Self {
+        Self {
+            alert_type,
+            title,
+            multiline,
+            fence_length,
+            fence_offset,
+        }
+    }
+}
 
 #[pyclass(name = "NodeValue", subclass)]
-pub struct PyNodeValue {
+pub struct PyNodeValue {}
+
+#[pymethods]
+impl PyNodeValue {
+    #[new]
+    pub fn new() -> Self {
+        Self {}
+    }
 }
 
 #[pyclass(name = "Document", extends=PyNodeValue)]
-pub struct PyDocument {
+pub struct PyDocument {}
+
+#[pymethods]
+impl PyDocument {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
 }
 
-#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all)]
+#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all, set_all)]
 pub struct PyFrontMatter {
     pub value: String,
+}
+
+#[pymethods]
+impl PyFrontMatter {
+    #[new]
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "BlockQuote", extends=PyNodeValue)]
 pub struct PyBlockQuote {}
 
-#[pyclass(name = "List", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyBlockQuote {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "List", extends=PyNodeValue, get_all, set_all)]
 pub struct PyList {
     pub value: PyNodeList,
 }
 
-#[pyclass(name = "Item", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyList {
+    #[new]
+    pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Item", extends=PyNodeValue, get_all, set_all)]
 pub struct PyItem {
     pub value: PyNodeList,
+}
+
+#[pymethods]
+impl PyItem {
+    #[new]
+    pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "DescriptionList", extends=PyNodeValue)]
 pub struct PyDescriptionList {}
 
-#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyDescriptionList {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all, set_all)]
 pub struct PyDescriptionItem {
     pub value: PyNodeDescriptionItem,
+}
+
+#[pymethods]
+impl PyDescriptionItem {
+    #[new]
+    pub fn new(value: PyNodeDescriptionItem) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "DescriptionTerm", extends=PyNodeValue)]
 pub struct PyDescriptionTerm {}
 
+#[pymethods]
+impl PyDescriptionTerm {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "DescriptionDetails", extends=PyNodeValue)]
 pub struct PyDescriptionDetails {}
 
-#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyDescriptionDetails {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all, set_all)]
 pub struct PyCodeBlock {
     pub value: PyNodeCodeBlock,
 }
 
-#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyCodeBlock {
+    #[new]
+    pub fn new(value: PyNodeCodeBlock) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all, set_all)]
 pub struct PyHtmlBlock {
     pub value: PyNodeHtmlBlock,
+}
+
+#[pymethods]
+impl PyHtmlBlock {
+    #[new]
+    pub fn new(value: PyNodeHtmlBlock) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "Paragraph", extends=PyNodeValue)]
 pub struct PyParagraph {}
 
-#[pyclass(name = "Heading", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyParagraph {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Heading", extends=PyNodeValue, get_all, set_all)]
 pub struct PyHeading {
     pub value: PyNodeHeading,
+}
+
+#[pymethods]
+impl PyHeading {
+    #[new]
+    pub fn new(value: PyNodeHeading) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "ThematicBreak", extends=PyNodeValue)]
 pub struct PyThematicBreak {}
 
-#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyThematicBreak {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all, set_all)]
 pub struct PyFootnoteDefinition {
     pub value: PyNodeFootnoteDefinition,
 }
 
-#[pyclass(name = "Table", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyFootnoteDefinition {
+    #[new]
+    pub fn new(value: PyNodeFootnoteDefinition) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Table", extends=PyNodeValue, get_all, set_all)]
 pub struct PyTable {
     pub value: PyNodeTable,
 }
 
-#[pyclass(name = "TableRow", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyTable {
+    #[new]
+    pub fn new(value: PyNodeTable) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "TableRow", extends=PyNodeValue, get_all, set_all)]
 pub struct PyTableRow {
     pub value: bool,
+}
+
+#[pymethods]
+impl PyTableRow {
+    #[new]
+    pub fn new(value: bool) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "TableCell", extends=PyNodeValue)]
 pub struct PyTableCell {}
 
-#[pyclass(name = "Text", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyTableCell {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Text", extends=PyNodeValue, get_all, set_all)]
 pub struct PyText {
     pub value: String,
 }
 
-#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyText {
+    #[new]
+
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all)]
 pub struct PyTaskItem {
     pub value: Option<char>,
+}
+
+#[pymethods]
+impl PyTaskItem {
+    #[new]
+    pub fn new(value: Option<char>) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "SoftBreak", extends=PyNodeValue)]
 pub struct PySoftBreak {}
 
+#[pymethods]
+impl PySoftBreak {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "LineBreak", extends=PyNodeValue)]
 pub struct PyLineBreak {}
 
-#[pyclass(name = "Code", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyLineBreak {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Code", extends=PyNodeValue, get_all, set_all)]
 pub struct PyCode {
     pub value: PyNodeCode,
 }
 
-#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyCode {
+    #[new]
+    pub fn new(value: PyNodeCode) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all, set_all)]
 pub struct PyHtmlInline {
     pub value: String,
 }
 
-#[pyclass(name = "Raw", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyHtmlInline {
+    #[new]
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all)]
 pub struct PyRaw {
     pub value: String,
+}
+
+#[pymethods]
+impl PyRaw {
+    #[new]
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "Emph", extends=PyNodeValue)]
 pub struct PyEmph {}
 
+#[pymethods]
+impl PyEmph {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Strong", extends=PyNodeValue)]
 pub struct PyStrong {}
+
+#[pymethods]
+impl PyStrong {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
 
 #[pyclass(name = "Strikethrough", extends=PyNodeValue)]
 pub struct PyStrikethrough {}
 
+#[pymethods]
+impl PyStrikethrough {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Superscript", extends=PyNodeValue)]
 pub struct PySuperscript {}
 
-#[pyclass(name = "Link", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PySuperscript {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Link", extends=PyNodeValue, get_all, set_all)]
 pub struct PyLink {
     pub value: PyNodeLink,
 }
 
-#[pyclass(name = "Image", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyLink {
+    #[new]
+    pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Image", extends=PyNodeValue, get_all, set_all)]
 pub struct PyImage {
     pub value: PyNodeLink,
 }
 
-#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyImage {
+    #[new]
+    pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all, set_all)]
 pub struct PyFootnoteReference {
     pub value: PyNodeFootnoteReference,
 }
 
-#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyFootnoteReference {
+    #[new]
+    pub fn new(value: PyNodeFootnoteReference) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all, set_all)]
 pub struct PyShortCode {
     pub value: PyNodeShortCode,
 }
 
-#[pyclass(name = "Math", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyShortCode {
+    #[new]
+    pub fn new(value: PyNodeShortCode) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Math", extends=PyNodeValue, get_all, set_all)]
 pub struct PyMath {
     pub value: PyNodeMath,
 }
 
-#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyMath {
+    #[new]
+    pub fn new(value: PyNodeMath) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all)]
 pub struct PyMultilineBlockQuote {
     pub value: PyNodeMultilineBlockQuote,
+}
+
+#[pymethods]
+impl PyMultilineBlockQuote {
+    #[new]
+    pub fn new(value: PyNodeMultilineBlockQuote) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "Escaped", extends=PyNodeValue)]
 pub struct PyEscaped {}
 
-#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyEscaped {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all, set_all)]
 pub struct PyWikiLink {
     pub value: PyNodeWikiLink,
+}
+
+#[pymethods]
+impl PyWikiLink {
+    #[new]
+    pub fn new(value: PyNodeWikiLink) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
 }
 
 #[pyclass(name = "Underline", extends=PyNodeValue)]
 pub struct PyUnderline {}
 
+#[pymethods]
+impl PyUnderline {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Subscript", extends=PyNodeValue)]
 pub struct PySubscript {}
+
+#[pymethods]
+impl PySubscript {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
 
 #[pyclass(name = "SpoileredText", extends=PyNodeValue)]
 pub struct PySpoileredText {}
 
-#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PySpoileredText {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all, set_all)]
 pub struct PyEscapedTag {
     pub value: String,
 }
 
-#[pyclass(name = "Alert", extends=PyNodeValue, get_all)]
+#[pymethods]
+impl PyEscapedTag {
+    #[new]
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Alert", extends=PyNodeValue, get_all, set_all)]
 pub struct PyAlert {
     pub value: PyNodeAlert,
 }
 
+#[pymethods]
+impl PyAlert {
+    #[new]
+    pub fn new(value: PyNodeAlert) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
 
-#[pyclass(name = "AstNode", get_all)]
+#[pyclass(name = "AstNode", get_all, set_all)]
 pub struct PyAstNode {
     pub node_value: PyObject,
     pub sourcepos: PySourcepos,
     pub children: Vec<Py<PyAstNode>>,
 }
 
-
-
 #[pymethods]
 impl PyAstNode {
     #[new]
     pub fn new(node_value: PyObject, sourcepos: PySourcepos, children: Vec<Py<PyAstNode>>) -> Self {
-        Self { node_value, sourcepos, children }
+        Self {
+            node_value,
+            sourcepos,
+            children,
+        }
     }
 }
 
 fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> PyObject {
     match value {
-        comrak_lib::nodes::NodeValue::Document => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass( PyDocument {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::FrontMatter(s) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFrontMatter { value: s.clone() })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::BlockQuote => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockQuote {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::List(l) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyList { value: PyNodeList::from(l) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Item(i) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyItem { value: PyNodeList::from(i) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::DescriptionList => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionList {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::DescriptionItem(d) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionItem { value: PyNodeDescriptionItem::from(d) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::DescriptionTerm => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionTerm {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::DescriptionDetails => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionDetails {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::CodeBlock(c) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCodeBlock { value: PyNodeCodeBlock::from(c) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::HtmlBlock(h) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlBlock { value: PyNodeHtmlBlock::from(h) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Paragraph => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyParagraph {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Heading(h) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeading { value: PyNodeHeading::from(h) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::ThematicBreak => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyThematicBreak {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::FootnoteDefinition(f) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteDefinition { value: PyNodeFootnoteDefinition::from(f) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Table(t) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTable { value: PyNodeTable::from(t) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::TableRow(is_header) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableRow { value: *is_header })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::TableCell => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableCell {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Text(t) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText { value: t.clone() })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::TaskItem(c) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem { value: *c })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::SoftBreak => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PySoftBreak {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::LineBreak => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLineBreak {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Code(c) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCode { value: PyNodeCode::from(c) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::HtmlInline(s) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlInline { value: s.clone() })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Raw(s) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyRaw { value: s.clone() })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Emph => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEmph {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Strong => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrong {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Strikethrough => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrikethrough {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Superscript => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PySuperscript {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Link(l) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLink { value: PyNodeLink::from(l) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Image(i) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyImage { value: PyNodeLink::from(i) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::FootnoteReference(f) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteReference { value: PyNodeFootnoteReference::from(f) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::ShortCode(s) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyShortCode { value: PyNodeShortCode::from(s) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Math(m) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMath { value: PyNodeMath::from(m) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::MultilineBlockQuote(m) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMultilineBlockQuote { value: PyNodeMultilineBlockQuote::from(m) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Escaped => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscaped {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::WikiLink(w) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyWikiLink { value: PyNodeWikiLink::from(w) })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Underline => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyUnderline {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Subscript => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubscript {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::SpoileredText => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PySpoileredText {})).unwrap().into(),
-        comrak_lib::nodes::NodeValue::EscapedTag(s) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscapedTag { value: s.clone() })).unwrap().into(),
-        comrak_lib::nodes::NodeValue::Alert(a) => Py::new(py, PyClassInitializer::from(PyNodeValue {}).add_subclass(PyAlert { value: PyNodeAlert::from(a) })).unwrap().into(),
+        comrak_lib::nodes::NodeValue::Document => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDocument {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::FrontMatter(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {})
+                .add_subclass(PyFrontMatter { value: s.clone() }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::BlockQuote => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockQuote {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::List(l) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyList {
+                value: PyNodeList::from(l),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Item(i) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyItem {
+                value: PyNodeList::from(i),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::DescriptionList => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionList {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::DescriptionItem(d) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionItem {
+                value: PyNodeDescriptionItem::from(d),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::DescriptionTerm => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionTerm {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::DescriptionDetails => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionDetails {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::CodeBlock(c) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCodeBlock {
+                value: PyNodeCodeBlock::from(c),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::HtmlBlock(h) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlBlock {
+                value: PyNodeHtmlBlock::from(h),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Paragraph => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyParagraph {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Heading(h) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeading {
+                value: PyNodeHeading::from(h),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::ThematicBreak => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyThematicBreak {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::FootnoteDefinition(f) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteDefinition {
+                value: PyNodeFootnoteDefinition::from(f),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Table(t) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTable {
+                value: PyNodeTable::from(t),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::TableRow(is_header) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableRow { value: *is_header }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::TableCell => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableCell {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Text(t) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText { value: t.clone() }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::TaskItem(c) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem { value: *c }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::SoftBreak => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PySoftBreak {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::LineBreak => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLineBreak {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Code(c) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCode {
+                value: PyNodeCode::from(c),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::HtmlInline(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {})
+                .add_subclass(PyHtmlInline { value: s.clone() }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Raw(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyRaw { value: s.clone() }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Emph => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEmph {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Strong => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrong {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Strikethrough => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrikethrough {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Superscript => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PySuperscript {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Link(l) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLink {
+                value: PyNodeLink::from(l),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Image(i) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyImage {
+                value: PyNodeLink::from(i),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::FootnoteReference(f) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteReference {
+                value: PyNodeFootnoteReference::from(f),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::ShortCode(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyShortCode {
+                value: PyNodeShortCode::from(s),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Math(m) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMath {
+                value: PyNodeMath::from(m),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::MultilineBlockQuote(m) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMultilineBlockQuote {
+                value: PyNodeMultilineBlockQuote::from(m),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Escaped => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscaped {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::WikiLink(w) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyWikiLink {
+                value: PyNodeWikiLink::from(w),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Underline => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyUnderline {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Subscript => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubscript {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::SpoileredText => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PySpoileredText {}),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::EscapedTag(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {})
+                .add_subclass(PyEscapedTag { value: s.clone() }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Alert(a) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyAlert {
+                value: PyNodeAlert::from(a),
+            }),
+        )
+        .unwrap()
+        .into(),
     }
 }
-
 
 impl PyAstNode {
     pub fn from_comrak_node<'a>(py: Python<'a>, node: &'a AstNode<'a>) -> Py<PyAstNode> {
         let ast = node.data.borrow();
         let node_value = create_py_node_value(py, &ast.value);
         let sourcepos: PySourcepos = PySourcepos::from(&ast.sourcepos);
-        let children = node.children().map(|child| Self::from_comrak_node(py, child)).collect();
+        let children = node
+            .children()
+            .map(|child| Self::from_comrak_node(py, child))
+            .collect();
         Py::new(py, PyAstNode::new(node_value, sourcepos, children)).unwrap()
     }
 }
