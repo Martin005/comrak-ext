@@ -1163,6 +1163,7 @@ impl PyAlert {
 pub struct PyAstNode {
     pub node_value: PyObject,
     pub sourcepos: PySourcepos,
+    pub parent: Option<Py<PyAstNode>>,
     pub children: Vec<Py<PyAstNode>>,
 }
 
@@ -1173,6 +1174,7 @@ impl PyAstNode {
         Self {
             node_value,
             sourcepos,
+            parent: None,
             children,
         }
     }
@@ -1473,14 +1475,34 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> PyO
 }
 
 impl PyAstNode {
-    pub fn from_comrak_node<'a>(py: Python<'a>, node: &'a AstNode<'a>) -> Py<PyAstNode> {
+    pub fn from_comrak_node<'a>(
+        py: Python<'a>,
+        node: &'a AstNode<'a>,
+        parent: Option<Py<PyAstNode>>,
+    ) -> Py<PyAstNode> {
         let ast = node.data.borrow();
         let node_value = create_py_node_value(py, &ast.value);
         let sourcepos: PySourcepos = PySourcepos::from(&ast.sourcepos);
-        let children = node
-            .children()
-            .map(|child| Self::from_comrak_node(py, child))
-            .collect();
-        Py::new(py, PyAstNode::new(node_value, sourcepos, children)).unwrap()
+        // Create the current PyAstNode with the owned parent handle (if any).
+        let current = Py::new(
+            py,
+            PyAstNode {
+                node_value,
+                sourcepos,
+                parent: parent.as_ref().map(|p| p.clone_ref(py)),
+                children: Vec::new(),
+            },
+        )
+        .unwrap();
+
+        // Build children with `current` as their parent, then append them.
+        for child in node.children() {
+            let child_py = Self::from_comrak_node(py, child, Some(current.clone_ref(py)));
+            // Borrow the PyAstNode instance mutably to push the child.
+            let mut current_ref = current.borrow_mut(py);
+            current_ref.children.push(child_py);
+        }
+
+        current
     }
 }

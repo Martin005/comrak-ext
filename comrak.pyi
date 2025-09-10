@@ -318,9 +318,14 @@ class Sourcepos:
 class AstNode:
     node_value: NodeValue
     sourcepos: Sourcepos
+    parent: Optional[AstNode]
     children: list[AstNode]
     def __init__(
-        self, node_value: NodeValue, sourcepos: Sourcepos, children: list[AstNode]
+        self,
+        node_value: NodeValue,
+        sourcepos: Sourcepos,
+        parent: Optional[AstNode],
+        children: list[AstNode],
     ) -> None: ...
 
 class ExtensionOptions:
