@@ -103,7 +103,7 @@ fn parse_markdown(
 
     let arena = Arena::new();
     let document = parse_document(&arena, text, &opts);
-    let py_node = PyAstNode::from_comrak_node(py, document);
+    let py_node = PyAstNode::from_comrak_node(py, document, None);
     Ok(py_node)
 }
 
