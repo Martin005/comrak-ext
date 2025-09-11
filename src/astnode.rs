@@ -1170,11 +1170,16 @@ pub struct PyAstNode {
 #[pymethods]
 impl PyAstNode {
     #[new]
-    pub fn new(node_value: PyObject, sourcepos: PySourcepos, children: Vec<Py<PyAstNode>>) -> Self {
+    pub fn new(
+        node_value: PyObject,
+        sourcepos: PySourcepos,
+        parent: Option<Py<PyAstNode>>,
+        children: Vec<Py<PyAstNode>>,
+    ) -> Self {
         Self {
             node_value,
             sourcepos,
-            parent: None,
+            parent,
             children,
         }
     }
