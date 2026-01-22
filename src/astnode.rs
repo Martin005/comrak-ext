@@ -1161,7 +1161,7 @@ impl PyAlert {
 
 #[pyclass(name = "AstNode", get_all, set_all)]
 pub struct PyAstNode {
-    pub node_value: PyObject,
+    pub node_value: Py<PyAny>,
     pub sourcepos: PySourcepos,
     pub parent: Option<Py<PyAstNode>>,
     pub children: Vec<Py<PyAstNode>>,
@@ -1171,7 +1171,7 @@ pub struct PyAstNode {
 impl PyAstNode {
     #[new]
     pub fn new(
-        node_value: PyObject,
+        node_value: Py<PyAny>,
         sourcepos: PySourcepos,
         parent: Option<Py<PyAstNode>>,
         children: Vec<Py<PyAstNode>>,
@@ -1185,7 +1185,7 @@ impl PyAstNode {
     }
 }
 
-fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> PyObject {
+fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<PyAny> {
     match value {
         comrak_lib::nodes::NodeValue::Document => Py::new(
             py,
