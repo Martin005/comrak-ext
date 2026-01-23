@@ -1,5 +1,5 @@
 use comrak_lib::nodes::*;
-use pyo3::{prelude::*, pyclass};
+use pyo3::{prelude::*, pyclass, IntoPyObjectExt};
 
 #[pyclass(name = "LineColumn", get_all, set_all, eq)]
 #[derive(Clone, PartialEq, Eq)]
@@ -249,6 +249,7 @@ pub struct PyNodeCodeBlock {
     pub fence_offset: usize,
     pub info: String,
     pub literal: String,
+    pub closed: bool,
 }
 
 impl From<&NodeCodeBlock> for PyNodeCodeBlock {
@@ -260,6 +261,7 @@ impl From<&NodeCodeBlock> for PyNodeCodeBlock {
             fence_char: cb.fence_char,
             fence_length: cb.fence_length,
             fence_offset: cb.fence_offset,
+            closed: cb.closed,
         }
     }
 }
@@ -274,6 +276,7 @@ impl PyNodeCodeBlock {
         fence_offset: usize,
         info: String,
         literal: String,
+        closed: bool,
     ) -> Self {
         Self {
             fenced,
@@ -282,6 +285,7 @@ impl PyNodeCodeBlock {
             fence_offset,
             info,
             literal,
+            closed,
         }
     }
 }
@@ -291,6 +295,7 @@ impl PyNodeCodeBlock {
 pub struct PyNodeHeading {
     pub level: u8,
     pub setext: bool,
+    pub closed: bool,
 }
 
 impl From<&NodeHeading> for PyNodeHeading {
@@ -298,6 +303,7 @@ impl From<&NodeHeading> for PyNodeHeading {
         Self {
             level: h.level,
             setext: h.setext,
+            closed: h.closed,
         }
     }
 }
@@ -305,8 +311,12 @@ impl From<&NodeHeading> for PyNodeHeading {
 #[pymethods]
 impl PyNodeHeading {
     #[new]
-    pub fn new(level: u8, setext: bool) -> Self {
-        Self { level, setext }
+    pub fn new(level: u8, setext: bool, closed: bool) -> Self {
+        Self {
+            level,
+            setext,
+            closed,
+        }
     }
 }
 
@@ -348,6 +358,22 @@ impl PyNodeTable {
             num_columns,
             num_rows,
             num_nonempty_cells,
+        }
+    }
+}
+
+#[pyclass(name = "NodeTaskItem", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyNodeTaskItem {
+    pub symbol: Option<char>,
+    pub symbol_sourcepos: PySourcepos,
+}
+
+impl From<&NodeTaskItem> for PyNodeTaskItem {
+    fn from(ti: &NodeTaskItem) -> Self {
+        Self {
+            symbol: ti.symbol,
+            symbol_sourcepos: PySourcepos::from(&ti.symbol_sourcepos),
         }
     }
 }
@@ -407,6 +433,7 @@ impl PyNodeFootnoteDefinition {
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyNodeFootnoteReference {
     pub name: String,
+    pub texts: Vec<(String, usize)>,
     pub ref_num: u32,
     pub ix: u32,
 }
@@ -415,6 +442,7 @@ impl From<&NodeFootnoteReference> for PyNodeFootnoteReference {
     fn from(f: &NodeFootnoteReference) -> Self {
         Self {
             name: f.name.clone(),
+            texts: f.texts.clone(),
             ref_num: f.ref_num,
             ix: f.ix,
         }
@@ -424,8 +452,13 @@ impl From<&NodeFootnoteReference> for PyNodeFootnoteReference {
 #[pymethods]
 impl PyNodeFootnoteReference {
     #[new]
-    pub fn new(name: String, ref_num: u32, ix: u32) -> Self {
-        Self { name, ref_num, ix }
+    pub fn new(name: String, texts: Vec<(String, usize)>, ref_num: u32, ix: u32) -> Self {
+        Self {
+            name,
+            texts,
+            ref_num,
+            ix,
+        }
     }
 }
 
@@ -594,6 +627,175 @@ impl PyNodeAlert {
     }
 }
 
+#[pyclass(name = "HeexNode", subclass, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNode {}
+
+#[pymethods]
+impl PyHeexNode {
+    #[new]
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+#[pyclass(name = "HeexNodeDirective", extends=PyHeexNode, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNodeDirective {}
+
+#[pymethods]
+impl PyHeexNodeDirective {
+    #[new]
+    pub fn new() -> (Self, PyHeexNode) {
+        (Self {}, PyHeexNode::new())
+    }
+}
+
+impl<'py> IntoPyObject<'py> for PyHeexNodeDirective {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        // Invoking PyHeexNodeDirective(self.bar) via the Python interface
+        py.get_type::<PyHeexNodeDirective>().call1(())
+    }
+}
+
+#[pyclass(name = "HeexNodeComment", extends=PyHeexNode, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNodeComment {}
+
+#[pymethods]
+impl PyHeexNodeComment {
+    #[new]
+    pub fn new() -> (Self, PyHeexNode) {
+        (Self {}, PyHeexNode::new())
+    }
+}
+
+impl<'py> IntoPyObject<'py> for PyHeexNodeComment {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        // Invoking PyHeexNodeComment(self.bar) via the Python interface
+        py.get_type::<PyHeexNodeComment>().call1(())
+    }
+}
+
+#[pyclass(name = "HeexNodeMultilineComment", extends=PyHeexNode, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNodeMultilineComment {}
+
+#[pymethods]
+impl PyHeexNodeMultilineComment {
+    #[new]
+    pub fn new() -> (Self, PyHeexNode) {
+        (Self {}, PyHeexNode::new())
+    }
+}
+
+impl<'py> IntoPyObject<'py> for PyHeexNodeMultilineComment {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        // Invoking PyHeexNodeMultilineComment(self.bar) via the Python interface
+        py.get_type::<PyHeexNodeMultilineComment>().call1(())
+    }
+}
+
+#[pyclass(name = "HeexNodeExpression", extends=PyHeexNode, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNodeExpression {}
+
+#[pymethods]
+impl PyHeexNodeExpression {
+    #[new]
+    pub fn new() -> (Self, PyHeexNode) {
+        (Self {}, PyHeexNode::new())
+    }
+}
+
+impl<'py> IntoPyObject<'py> for PyHeexNodeExpression {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        // Invoking PyHeexNodeExpression(self.bar) via the Python interface
+        py.get_type::<PyHeexNodeExpression>().call1(())
+    }
+}
+
+#[pyclass(name = "HeexNodeTag", extends=PyHeexNode, get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyHeexNodeTag {
+    pub tag: String,
+}
+
+impl<'py> IntoPyObject<'py> for PyHeexNodeTag {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        // Invoking PyHeexNodeTag(self.bar) via the Python interface
+        py.get_type::<PyHeexNodeTag>().call1((self.tag,))
+    }
+}
+
+#[pymethods]
+impl PyHeexNodeTag {
+    #[new]
+    pub fn new(tag: String) -> (Self, PyHeexNode) {
+        (Self { tag }, PyHeexNode::new())
+    }
+}
+
+#[pyclass(name = "NodeHeexBlock", get_all, set_all, eq)]
+pub struct PyNodeHeexBlock {
+    pub literal: String,
+    pub node: Py<PyAny>, // PyHeexNode subclass
+}
+
+impl Clone for PyNodeHeexBlock {
+    fn clone(&self) -> Self {
+        Python::attach(|py| Self {
+            literal: self.literal.clone(),
+            node: self.node.clone_ref(py),
+        })
+    }
+}
+
+impl PartialEq for PyNodeHeexBlock {
+    fn eq(&self, other: &Self) -> bool {
+        self.literal == other.literal && self.node.as_ptr() == other.node.as_ptr()
+    }
+}
+
+impl Eq for PyNodeHeexBlock {}
+
+impl From<(Python<'_>, &NodeHeexBlock)> for PyNodeHeexBlock {
+    fn from((py, hb): (Python, &NodeHeexBlock)) -> Self {
+        let py_node = match &hb.node {
+            HeexNode::Directive => PyHeexNodeDirective {}.into_py_any(py),
+            HeexNode::Comment => PyHeexNodeComment {}.into_py_any(py),
+            HeexNode::MultilineComment => PyHeexNodeMultilineComment {}.into_py_any(py),
+            HeexNode::Expression => PyHeexNodeExpression {}.into_py_any(py),
+            HeexNode::Tag(s) => PyHeexNodeTag { tag: s.clone() }.into_py_any(py),
+        };
+
+        Self {
+            literal: hb.literal.clone(),
+            node: py_node.unwrap().into(),
+        }
+    }
+}
+
 #[pyclass(name = "NodeValue", subclass, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PyNodeValue {}
@@ -750,6 +952,20 @@ impl PyHtmlBlock {
     }
 }
 
+#[pyclass(name = "HeexBlock", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
+pub struct PyHeexBlock {
+    pub value: PyNodeHeexBlock,
+}
+
+#[pymethods]
+impl PyHeexBlock {
+    #[new]
+    pub fn new(value: PyNodeHeexBlock) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Paragraph", extends=PyNodeValue, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PyParagraph {}
@@ -860,13 +1076,13 @@ impl PyText {
 #[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PyTaskItem {
-    pub value: Option<char>,
+    pub value: PyNodeTaskItem,
 }
 
 #[pymethods]
 impl PyTaskItem {
     #[new]
-    pub fn new(value: Option<char>) -> (Self, PyNodeValue) {
+    pub fn new(value: PyNodeTaskItem) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
 }
@@ -923,6 +1139,20 @@ impl PyHtmlInline {
     }
 }
 
+#[pyclass(name = "HeexInline", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
+pub struct PyHeexInline {
+    pub value: String,
+}
+
+#[pymethods]
+impl PyHeexInline {
+    #[new]
+    pub fn new(value: String) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PyRaw {
@@ -967,6 +1197,18 @@ pub struct PyStrikethrough {}
 
 #[pymethods]
 impl PyStrikethrough {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
+#[pyclass(name = "Highlight", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
+pub struct PyHighlight {}
+
+#[pymethods]
+impl PyHighlight {
     #[new]
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
@@ -1159,6 +1401,19 @@ impl PyAlert {
     }
 }
 
+#[pyclass(name = "Subtext", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
+
+pub struct PySubtext {}
+
+#[pymethods]
+impl PySubtext {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "AstNode", get_all, set_all)]
 pub struct PyAstNode {
     pub node_value: Py<PyAny>,
@@ -1251,7 +1506,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::CodeBlock(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCodeBlock {
-                value: PyNodeCodeBlock::from(c),
+                value: PyNodeCodeBlock::from(c.as_ref()),
             }),
         )
         .unwrap()
@@ -1260,6 +1515,14 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlBlock {
                 value: PyNodeHtmlBlock::from(h),
+            }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::HeexBlock(h) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeexBlock {
+                value: PyNodeHeexBlock::from((py, h.as_ref())),
             }),
         )
         .unwrap()
@@ -1295,7 +1558,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::Table(t) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTable {
-                value: PyNodeTable::from(t),
+                value: PyNodeTable::from(t.as_ref()),
             }),
         )
         .unwrap()
@@ -1314,13 +1577,17 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         .into(),
         comrak_lib::nodes::NodeValue::Text(t) => Py::new(
             py,
-            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText { value: t.clone() }),
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText {
+                value: t.to_string(),
+            }),
         )
         .unwrap()
         .into(),
         comrak_lib::nodes::NodeValue::TaskItem(c) => Py::new(
             py,
-            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem { value: *c }),
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem {
+                value: PyNodeTaskItem::from(c),
+            }),
         )
         .unwrap()
         .into(),
@@ -1351,6 +1618,13 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
+        comrak_lib::nodes::NodeValue::HeexInline(s) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {})
+                .add_subclass(PyHeexInline { value: s.clone() }),
+        )
+        .unwrap()
+        .into(),
         comrak_lib::nodes::NodeValue::Raw(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyRaw { value: s.clone() }),
@@ -1375,6 +1649,12 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
+        comrak_lib::nodes::NodeValue::Highlight => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHighlight {}),
+        )
+        .unwrap()
+        .into(),
         comrak_lib::nodes::NodeValue::Superscript => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySuperscript {}),
@@ -1384,7 +1664,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::Link(l) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLink {
-                value: PyNodeLink::from(l),
+                value: PyNodeLink::from(l.as_ref()),
             }),
         )
         .unwrap()
@@ -1392,7 +1672,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::Image(i) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyImage {
-                value: PyNodeLink::from(i),
+                value: PyNodeLink::from(i.as_ref()),
             }),
         )
         .unwrap()
@@ -1400,7 +1680,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::FootnoteReference(f) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteReference {
-                value: PyNodeFootnoteReference::from(f),
+                value: PyNodeFootnoteReference::from(f.as_ref()),
             }),
         )
         .unwrap()
@@ -1408,7 +1688,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         comrak_lib::nodes::NodeValue::ShortCode(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyShortCode {
-                value: PyNodeShortCode::from(s),
+                value: PyNodeShortCode::from(s.as_ref()),
             }),
         )
         .unwrap()
@@ -1463,16 +1743,23 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         .into(),
         comrak_lib::nodes::NodeValue::EscapedTag(s) => Py::new(
             py,
-            PyClassInitializer::from(PyNodeValue {})
-                .add_subclass(PyEscapedTag { value: s.clone() }),
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscapedTag {
+                value: s.to_string(),
+            }),
         )
         .unwrap()
         .into(),
         comrak_lib::nodes::NodeValue::Alert(a) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyAlert {
-                value: PyNodeAlert::from(a),
+                value: PyNodeAlert::from(a.as_ref()),
             }),
+        )
+        .unwrap()
+        .into(),
+        comrak_lib::nodes::NodeValue::Subtext => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubtext {}),
         )
         .unwrap()
         .into(),

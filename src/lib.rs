@@ -12,15 +12,17 @@ mod astnode;
 use astnode::{
     PyAlert, PyAlertType, PyAstNode, PyBlockQuote, PyCode, PyCodeBlock, PyDescriptionDetails,
     PyDescriptionItem, PyDescriptionList, PyDescriptionTerm, PyDocument, PyEmph, PyEscaped,
-    PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter, PyHeading, PyHtmlBlock,
-    PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType,
-    PyListType, PyMath, PyMultilineBlockQuote, PyNodeAlert, PyNodeCode, PyNodeCodeBlock,
-    PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeHeading,
+    PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter, PyHeading, PyHeexBlock,
+    PyHeexInline, PyHeexNode, PyHeexNodeComment, PyHeexNodeDirective, PyHeexNodeExpression,
+    PyHeexNodeMultilineComment, PyHeexNodeTag, PyHighlight, PyHtmlBlock, PyHtmlInline, PyImage,
+    PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType, PyListType, PyMath,
+    PyMultilineBlockQuote, PyNodeAlert, PyNodeCode, PyNodeCodeBlock, PyNodeDescriptionItem,
+    PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeHeading, PyNodeHeexBlock,
     PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath, PyNodeMultilineBlockQuote,
-    PyNodeShortCode, PyNodeTable, PyNodeValue, PyNodeWikiLink, PyParagraph, PyRaw, PyShortCode,
-    PySoftBreak, PySourcepos, PySpoileredText, PyStrikethrough, PyStrong, PySubscript,
-    PySuperscript, PyTable, PyTableAlignment, PyTableCell, PyTableRow, PyTaskItem, PyText,
-    PyThematicBreak, PyUnderline, PyWikiLink,
+    PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue, PyNodeWikiLink, PyParagraph, PyRaw,
+    PyShortCode, PySoftBreak, PySourcepos, PySpoileredText, PyStrikethrough, PyStrong, PySubscript,
+    PySubtext, PySuperscript, PyTable, PyTableAlignment, PyTableCell, PyTableRow, PyTaskItem,
+    PyText, PyThematicBreak, PyUnderline, PyWikiLink,
 };
 
 /// Render a Markdown string to HTML, with optional Extension/Parse/Render overrides.
@@ -184,5 +186,17 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyAlertType>()?;
     m.add_class::<PyNodeAlert>()?;
     m.add_class::<PyAstNode>()?;
+    m.add_class::<PyHeexNode>()?;
+    m.add_class::<PyHeexNodeTag>()?;
+    m.add_class::<PyHeexNodeExpression>()?;
+    m.add_class::<PyHeexNodeDirective>()?;
+    m.add_class::<PyHeexNodeComment>()?;
+    m.add_class::<PyHeexNodeMultilineComment>()?;
+    m.add_class::<PyHeexInline>()?;
+    m.add_class::<PyHeexBlock>()?;
+    m.add_class::<PyNodeHeexBlock>()?;
+    m.add_class::<PyHighlight>()?;
+    m.add_class::<PySubtext>()?;
+    m.add_class::<PyNodeTaskItem>()?;
     Ok(())
 }

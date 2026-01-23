@@ -1,9 +1,8 @@
 use pyo3::prelude::*;
 
 // Import the Comrak (Rust) types under `comrak_lib::`
-use comrak_lib::{
-    ExtensionOptions as ComrakExtensionOptions, ParseOptions as ComrakParseOptions,
-    RenderOptions as ComrakRenderOptions,
+use comrak_lib::options::{
+    Extension as ComrakExtensionOptions, Parse as ComrakParseOptions, Render as ComrakRenderOptions,
 };
 
 /// Python class that mirrors Comrak’s `ExtensionOptions`
@@ -18,6 +17,7 @@ pub struct PyExtensionOptions {
     pub superscript: bool,
     pub header_ids: Option<String>,
     pub footnotes: bool,
+    pub inline_footnotes: bool,
     pub description_lists: bool,
     pub front_matter_delimiter: Option<String>,
     pub multiline_block_quotes: bool,
@@ -32,6 +32,9 @@ pub struct PyExtensionOptions {
     pub spoiler: bool,
     pub greentext: bool,
     pub cjk_friendly_emphasis: bool,
+    pub subtext: bool,
+    pub highlight: bool,
+    pub phoenix_heex: bool,
 }
 
 impl PyExtensionOptions {
@@ -45,6 +48,7 @@ impl PyExtensionOptions {
         opts.superscript = self.superscript;
         opts.header_ids = self.header_ids.clone();
         opts.footnotes = self.footnotes;
+        opts.inline_footnotes = self.inline_footnotes;
         opts.description_lists = self.description_lists;
         opts.front_matter_delimiter = self.front_matter_delimiter.clone();
         opts.multiline_block_quotes = self.multiline_block_quotes;
@@ -59,6 +63,9 @@ impl PyExtensionOptions {
         opts.spoiler = self.spoiler;
         opts.greentext = self.greentext;
         opts.cjk_friendly_emphasis = self.cjk_friendly_emphasis;
+        opts.subtext = self.subtext;
+        opts.highlight = self.highlight;
+        opts.phoenix_heex = self.phoenix_heex;
     }
 }
 
@@ -74,6 +81,7 @@ impl PyExtensionOptions {
         superscript=None,
         header_ids=None,
         footnotes=None,
+        inline_footnotes=None,
         description_lists=None,
         front_matter_delimiter=None,
         multiline_block_quotes=None,
@@ -88,6 +96,9 @@ impl PyExtensionOptions {
         spoiler=None,
         greentext=None,
         cjk_friendly_emphasis=None,
+        subtext=None,
+        highlight=None,
+        phoenix_heex=None,
     ))]
     pub fn new(
         strikethrough: Option<bool>,
@@ -98,6 +109,7 @@ impl PyExtensionOptions {
         superscript: Option<bool>,
         header_ids: Option<String>,
         footnotes: Option<bool>,
+        inline_footnotes: Option<bool>,
         description_lists: Option<bool>,
         front_matter_delimiter: Option<String>,
         multiline_block_quotes: Option<bool>,
@@ -112,6 +124,9 @@ impl PyExtensionOptions {
         spoiler: Option<bool>,
         greentext: Option<bool>,
         cjk_friendly_emphasis: Option<bool>,
+        subtext: Option<bool>,
+        highlight: Option<bool>,
+        phoenix_heex: Option<bool>,
     ) -> Self {
         let defaults = ComrakExtensionOptions::default();
         Self {
@@ -123,6 +138,7 @@ impl PyExtensionOptions {
             superscript: superscript.unwrap_or(defaults.superscript),
             header_ids: header_ids.or(defaults.header_ids.clone()),
             footnotes: footnotes.unwrap_or(defaults.footnotes),
+            inline_footnotes: inline_footnotes.unwrap_or(defaults.inline_footnotes),
             description_lists: description_lists.unwrap_or(defaults.description_lists),
             front_matter_delimiter: front_matter_delimiter
                 .or(defaults.front_matter_delimiter.clone()),
@@ -141,6 +157,9 @@ impl PyExtensionOptions {
             spoiler: spoiler.unwrap_or(defaults.spoiler),
             greentext: greentext.unwrap_or(defaults.greentext),
             cjk_friendly_emphasis: cjk_friendly_emphasis.unwrap_or(defaults.cjk_friendly_emphasis),
+            subtext: subtext.unwrap_or(defaults.subtext),
+            highlight: highlight.unwrap_or(defaults.highlight),
+            phoenix_heex: phoenix_heex.unwrap_or(defaults.phoenix_heex),
         }
     }
 }
@@ -152,7 +171,11 @@ pub struct PyParseOptions {
     pub smart: bool,
     pub default_info_string: Option<String>,
     pub relaxed_tasklist_matching: bool,
+    pub tasklist_in_table: bool,
     pub relaxed_autolinks: bool,
+    pub ignore_setext: bool,
+    pub leave_footnote_definitions: bool,
+    pub escaped_char_spans: bool,
 }
 
 impl PyParseOptions {
@@ -161,19 +184,36 @@ impl PyParseOptions {
         opts.smart = self.smart;
         opts.default_info_string = self.default_info_string.clone();
         opts.relaxed_tasklist_matching = self.relaxed_tasklist_matching;
+        opts.tasklist_in_table = self.tasklist_in_table;
         opts.relaxed_autolinks = self.relaxed_autolinks;
+        opts.ignore_setext = self.ignore_setext;
+        opts.leave_footnote_definitions = self.leave_footnote_definitions;
+        opts.escaped_char_spans = self.escaped_char_spans;
     }
 }
 
 #[pymethods]
 impl PyParseOptions {
     #[new]
-    #[pyo3(signature = (smart=None, default_info_string=None, relaxed_tasklist_matching=None, relaxed_autolinks=None))]
+    #[pyo3(signature = (
+        smart=None,
+        default_info_string=None,
+        relaxed_tasklist_matching=None,
+        tasklist_in_table=None,
+        relaxed_autolinks=None,
+        ignore_setext=None,
+        leave_footnote_definitions=None,
+        escaped_char_spans=None
+    ))]
     pub fn new(
         smart: Option<bool>,
         default_info_string: Option<String>,
         relaxed_tasklist_matching: Option<bool>,
+        tasklist_in_table: Option<bool>,
         relaxed_autolinks: Option<bool>,
+        ignore_setext: Option<bool>,
+        leave_footnote_definitions: Option<bool>,
+        escaped_char_spans: Option<bool>,
     ) -> Self {
         let defaults = ComrakParseOptions::default();
         Self {
@@ -181,7 +221,12 @@ impl PyParseOptions {
             default_info_string: default_info_string.or(defaults.default_info_string.clone()),
             relaxed_tasklist_matching: relaxed_tasklist_matching
                 .unwrap_or(defaults.relaxed_tasklist_matching),
+            tasklist_in_table: tasklist_in_table.unwrap_or(defaults.tasklist_in_table),
             relaxed_autolinks: relaxed_autolinks.unwrap_or(defaults.relaxed_autolinks),
+            ignore_setext: ignore_setext.unwrap_or(defaults.ignore_setext),
+            leave_footnote_definitions: leave_footnote_definitions
+                .unwrap_or(defaults.leave_footnote_definitions),
+            escaped_char_spans: escaped_char_spans.unwrap_or(defaults.escaped_char_spans),
         }
     }
 }
@@ -202,12 +247,11 @@ pub struct PyRenderOptions {
     pub github_pre_lang: bool,
     pub full_info_string: bool,
     pub width: usize,
-    pub unsafe_: bool, // named 'unsafe_' because 'unsafe' is reserved
+    pub r#unsafe: bool, // named 'unsafe_' because 'unsafe' is reserved
     pub escape: bool,
     pub list_style: PyListStyleType,
     pub sourcepos: bool,
     pub escaped_char_spans: bool,
-    pub ignore_setext: bool,
     pub ignore_empty_links: bool,
     pub gfm_quirks: bool,
     pub prefer_fenced: bool,
@@ -224,17 +268,16 @@ impl PyRenderOptions {
         opts.github_pre_lang = self.github_pre_lang;
         opts.full_info_string = self.full_info_string;
         opts.width = self.width;
-        opts.unsafe_ = self.unsafe_;
+        opts.r#unsafe = self.r#unsafe;
         opts.escape = self.escape;
         // convert integer to ListStyleType
         opts.list_style = match self.list_style {
-            PyListStyleType::Dash => comrak_lib::ListStyleType::Dash,
-            PyListStyleType::Plus => comrak_lib::ListStyleType::Plus,
-            PyListStyleType::Star => comrak_lib::ListStyleType::Star,
+            PyListStyleType::Dash => comrak_lib::options::ListStyleType::Dash,
+            PyListStyleType::Plus => comrak_lib::options::ListStyleType::Plus,
+            PyListStyleType::Star => comrak_lib::options::ListStyleType::Star,
         };
         opts.sourcepos = self.sourcepos;
         opts.escaped_char_spans = self.escaped_char_spans;
-        opts.ignore_setext = self.ignore_setext;
         opts.ignore_empty_links = self.ignore_empty_links;
         opts.gfm_quirks = self.gfm_quirks;
         opts.prefer_fenced = self.prefer_fenced;
@@ -258,7 +301,6 @@ impl PyRenderOptions {
         list_style=None,
         sourcepos=None,
         escaped_char_spans=None,
-        ignore_setext=None,
         ignore_empty_links=None,
         gfm_quirks=None,
         prefer_fenced=None,
@@ -277,7 +319,6 @@ impl PyRenderOptions {
         list_style: Option<PyListStyleType>,
         sourcepos: Option<bool>,
         escaped_char_spans: Option<bool>,
-        ignore_setext: Option<bool>,
         ignore_empty_links: Option<bool>,
         gfm_quirks: Option<bool>,
         prefer_fenced: Option<bool>,
@@ -292,16 +333,15 @@ impl PyRenderOptions {
             github_pre_lang: github_pre_lang.unwrap_or(defaults.github_pre_lang),
             full_info_string: full_info_string.unwrap_or(defaults.full_info_string),
             width: width.unwrap_or(defaults.width),
-            unsafe_: unsafe_.unwrap_or(defaults.unsafe_),
+            r#unsafe: unsafe_.unwrap_or(defaults.r#unsafe),
             escape: escape.unwrap_or(defaults.escape),
             list_style: list_style.unwrap_or(match defaults.list_style {
-                comrak_lib::ListStyleType::Dash => PyListStyleType::Dash,
-                comrak_lib::ListStyleType::Plus => PyListStyleType::Plus,
-                comrak_lib::ListStyleType::Star => PyListStyleType::Star,
+                comrak_lib::options::ListStyleType::Dash => PyListStyleType::Dash,
+                comrak_lib::options::ListStyleType::Plus => PyListStyleType::Plus,
+                comrak_lib::options::ListStyleType::Star => PyListStyleType::Star,
             }),
             sourcepos: sourcepos.unwrap_or(defaults.sourcepos),
             escaped_char_spans: escaped_char_spans.unwrap_or(defaults.escaped_char_spans),
-            ignore_setext: ignore_setext.unwrap_or(defaults.ignore_setext),
             ignore_empty_links: ignore_empty_links.unwrap_or(defaults.ignore_empty_links),
             gfm_quirks: gfm_quirks.unwrap_or(defaults.gfm_quirks),
             prefer_fenced: prefer_fenced.unwrap_or(defaults.prefer_fenced),
