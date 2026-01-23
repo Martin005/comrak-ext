@@ -6,6 +6,9 @@ T = TypeVar("T")
 class NodeValue(Generic[T]):
     pass
 
+class HeexNode(Generic[T]):
+    pass
+
 class ListDelimType(Enum):
     Period = 1
     Paren = 2
@@ -76,6 +79,7 @@ class NodeCodeBlock:
     fence_offset: int
     info: str
     literal: str
+    closed: bool
     def __init__(
         self,
         fenced: bool,
@@ -84,12 +88,14 @@ class NodeCodeBlock:
         fence_offset: int,
         info: str,
         literal: str,
+        closed: bool,
     ) -> None: ...
 
 class NodeHeading:
     level: int
     setext: bool
-    def __init__(self, level: int, setext: bool) -> None: ...
+    closed: bool
+    def __init__(self, level: int, setext: bool, closed: bool) -> None: ...
 
 class NodeTable:
     alignments: list[TableAlignment]
@@ -104,6 +110,11 @@ class NodeTable:
         num_nonempty_cells: int,
     ) -> None: ...
 
+class NodeTaskItem:
+    symbol: Optional[str]
+    symbol_sourcepos: Sourcepos
+    def __init__(self, symbol: Optional[str], symbol_sourcepos: Sourcepos) -> None: ...
+
 class NodeLink:
     url: str
     title: str
@@ -116,9 +127,12 @@ class NodeFootnoteDefinition:
 
 class NodeFootnoteReference:
     name: str
+    texts: list[tuple[str, int]]
     ref_num: int
     ix: int
-    def __init__(self, name: str, ref_num: int, ix: int) -> None: ...
+    def __init__(
+        self, name: str, texts: list[tuple[str, int]], ref_num: int, ix: int
+    ) -> None: ...
 
 class NodeWikiLink:
     url: str
@@ -154,6 +168,35 @@ class NodeAlert:
         fence_length: int,
         fence_offset: int,
     ) -> None: ...
+
+class HeexNodeDirective(HeexNode[None]):
+    def __init__(self) -> None: ...
+
+class HeexNodeComment(HeexNode[None]):
+    def __init__(self) -> None: ...
+
+class HeexNodeMultilineComment(HeexNode[None]):
+    def __init__(self) -> None: ...
+
+class HeexNodeExpression(HeexNode[None]):
+    def __init__(self) -> None: ...
+
+class HeexNodeTag(HeexNode[str]):
+    tag: str
+    def __init__(self, tag: str) -> None: ...
+
+class NodeHeexBlock:
+    literal: str
+    node: HeexNode
+    def __init__(self, literal: str, value: HeexNode) -> None: ...
+
+class HeexBlock(NodeValue[NodeHeexBlock]):
+    value: NodeHeexBlock
+    def __init__(self, value: NodeHeexBlock) -> None: ...
+
+class HeexInline(NodeValue[str]):
+    value: str
+    def __init__(self, value: str) -> None: ...
 
 class Document(NodeValue[None]):
     def __init__(self) -> None: ...
@@ -223,9 +266,9 @@ class Text(NodeValue[str]):
     value: str
     def __init__(self, value: str) -> None: ...
 
-class TaskItem(NodeValue[Optional[str]]):
-    value: Optional[str]
-    def __init__(self, value: Optional[str]) -> None: ...
+class TaskItem(NodeValue[NodeTaskItem]):
+    value: NodeTaskItem
+    def __init__(self, value: NodeTaskItem) -> None: ...
 
 class SoftBreak(NodeValue[None]):
     def __init__(self) -> None: ...
@@ -252,6 +295,9 @@ class Strong(NodeValue[None]):
     def __init__(self) -> None: ...
 
 class Strikethrough(NodeValue[None]):
+    def __init__(self) -> None: ...
+
+class Highlight(NodeValue[None]):
     def __init__(self) -> None: ...
 
 class Superscript(NodeValue[None]):
@@ -305,6 +351,9 @@ class Alert(NodeValue[NodeAlert]):
     value: NodeAlert
     def __init__(self, value: NodeAlert) -> None: ...
 
+class Subtext(NodeValue[None]):
+    def __init__(self) -> None: ...
+
 class LineColumn:
     line: int
     column: int
@@ -337,6 +386,7 @@ class ExtensionOptions:
     superscript: bool
     header_ids: Optional[str]
     footnotes: bool
+    inline_footnotes: bool
     description_lists: bool
     front_matter_delimiter: Optional[str]
     multiline_block_quotes: bool
@@ -351,6 +401,9 @@ class ExtensionOptions:
     spoiler: bool
     greentext: bool
     cjk_friendly_emphasis: bool
+    subtext: bool
+    highlight: bool
+    phoenix_heex: bool
     def __init__(
         self,
         strikethrough: bool = False,
@@ -361,6 +414,7 @@ class ExtensionOptions:
         superscript: bool = False,
         header_ids: Optional[str] = None,
         footnotes: bool = False,
+        inline_footnotes: bool = False,
         description_lists: bool = False,
         front_matter_delimiter: Optional[str] = None,
         multiline_block_quotes: bool = False,
@@ -375,19 +429,30 @@ class ExtensionOptions:
         spoiler: bool = False,
         greentext: bool = False,
         cjk_friendly_emphasis: bool = False,
+        subtext: bool = False,
+        highlight: bool = False,
+        phoenix_heex: bool = False,
     ) -> None: ...
 
 class ParseOptions:
     smart: bool
     default_info_string: Optional[str]
     relaxed_tasklist_matching: bool
+    tasklist_in_table: bool
     relaxed_autolinks: bool
+    ignore_setext: bool
+    leave_footnote_definitions: bool
+    escaped_char_spans: bool
     def __init__(
         self,
         smart: bool = False,
         default_info_string: Optional[str] = None,
         relaxed_tasklist_matching: bool = False,
+        tasklist_in_table: bool = False,
         relaxed_autolinks: bool = False,
+        ignore_setext: bool = False,
+        leave_footnote_definitions: bool = False,
+        escaped_char_spans: bool = False,
     ) -> None: ...
 
 class RenderOptions:
@@ -400,7 +465,6 @@ class RenderOptions:
     list_style: ListStyleType
     sourcepos: bool
     escaped_char_spans: bool
-    ignore_setext: bool
     ignore_empty_links: bool
     gfm_quirks: bool
     prefer_fenced: bool
@@ -419,7 +483,6 @@ class RenderOptions:
         list_style: ListStyleType = ListStyleType.Dash,
         sourcepos: bool = False,
         escaped_char_spans: bool = False,
-        ignore_setext: bool = False,
         ignore_empty_links: bool = False,
         gfm_quirks: bool = False,
         prefer_fenced: bool = False,
