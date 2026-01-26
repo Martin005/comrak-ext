@@ -796,6 +796,14 @@ impl From<(Python<'_>, &NodeHeexBlock)> for PyNodeHeexBlock {
     }
 }
 
+#[pymethods]
+impl PyNodeHeexBlock {
+    #[new]
+    pub fn new(literal: String, node: Py<PyAny>) -> Self {
+        Self { literal, node }
+    }
+}
+
 #[pyclass(name = "NodeValue", subclass, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PyNodeValue {}

@@ -188,7 +188,7 @@ class HeexNodeTag(HeexNode[str]):
 class NodeHeexBlock:
     literal: str
     node: HeexNode
-    def __init__(self, literal: str, value: HeexNode) -> None: ...
+    def __init__(self, literal: str, node: HeexNode) -> None: ...
 
 class HeexBlock(NodeValue[NodeHeexBlock]):
     value: NodeHeexBlock
