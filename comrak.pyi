@@ -504,9 +504,33 @@ def markdown_to_commonmark(
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
+def markdown_to_xml(
+    text: str,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> str: ...
 def parse_document(
     text: str,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> AstNode: ...
+def format_html(
+    node: AstNode,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> str: ...
+def format_commonmark(
+    node: AstNode,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> str: ...
+def format_xml(
+    node: AstNode,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> str: ...

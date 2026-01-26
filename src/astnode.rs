@@ -1774,6 +1774,377 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
     }
 }
 
+fn py_sourcepos_to_sourcepos(sp: &PySourcepos) -> Sourcepos {
+    Sourcepos {
+        start: LineColumn {
+            line: sp.start.line,
+            column: sp.start.column,
+        },
+        end: LineColumn {
+            line: sp.end.line,
+            column: sp.end.column,
+        },
+    }
+}
+
+fn create_comrak_node_value<'a>(
+    py: Python<'a>,
+    node_value: &Py<PyAny>,
+) -> comrak_lib::nodes::NodeValue {
+    let any = node_value.as_ref();
+
+    // Try each concrete Python subclass in turn and build the matching NodeValue
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyDocument>>(py) {
+        return comrak_lib::nodes::NodeValue::Document;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyFrontMatter>>(py) {
+        return comrak_lib::nodes::NodeValue::FrontMatter(v.value.clone());
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyBlockQuote>>(py) {
+        return comrak_lib::nodes::NodeValue::BlockQuote;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyList>>(py) {
+        let pl = &v.value;
+        let list_type = match pl.list_type {
+            PyListType::Bullet => ListType::Bullet,
+            PyListType::Ordered => ListType::Ordered,
+        };
+        let delim = match pl.delimiter {
+            PyListDelimType::Period => ListDelimType::Period,
+            PyListDelimType::Paren => ListDelimType::Paren,
+        };
+
+        return comrak_lib::nodes::NodeValue::List(NodeList {
+            list_type,
+            marker_offset: pl.marker_offset,
+            padding: pl.padding,
+            start: pl.start,
+            delimiter: delim,
+            bullet_char: pl.bullet_char,
+            tight: pl.tight,
+            is_task_list: pl.is_task_list,
+        });
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyItem>>(py) {
+        let pl = &v.value;
+        let list_type = match pl.list_type {
+            PyListType::Bullet => ListType::Bullet,
+            PyListType::Ordered => ListType::Ordered,
+        };
+        let delim = match pl.delimiter {
+            PyListDelimType::Period => ListDelimType::Period,
+            PyListDelimType::Paren => ListDelimType::Paren,
+        };
+
+        return comrak_lib::nodes::NodeValue::Item(NodeList {
+            list_type,
+            marker_offset: pl.marker_offset,
+            padding: pl.padding,
+            start: pl.start,
+            delimiter: delim,
+            bullet_char: pl.bullet_char,
+            tight: pl.tight,
+            is_task_list: pl.is_task_list,
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionList>>(py) {
+        return comrak_lib::nodes::NodeValue::DescriptionList;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyDescriptionItem>>(py) {
+        let di = &v.value;
+        return comrak_lib::nodes::NodeValue::DescriptionItem(NodeDescriptionItem {
+            marker_offset: di.marker_offset,
+            padding: di.padding,
+            tight: di.tight,
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionTerm>>(py) {
+        return comrak_lib::nodes::NodeValue::DescriptionTerm;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionDetails>>(py) {
+        return comrak_lib::nodes::NodeValue::DescriptionDetails;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyCodeBlock>>(py) {
+        let cb = &v.value;
+        return comrak_lib::nodes::NodeValue::CodeBlock(Box::new(NodeCodeBlock {
+            fenced: cb.fenced,
+            fence_char: cb.fence_char,
+            fence_length: cb.fence_length,
+            fence_offset: cb.fence_offset,
+            info: cb.info.clone(),
+            literal: cb.literal.clone(),
+            closed: cb.closed,
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyHtmlBlock>>(py) {
+        let hb = &v.value;
+        return comrak_lib::nodes::NodeValue::HtmlBlock(NodeHtmlBlock {
+            block_type: hb.block_type,
+            literal: hb.literal.clone(),
+        });
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyHeexBlock>>(py) {
+        let hb = &v.value;
+        // Convert HeexNode Py<PyAny> -> HeexNode
+        let py_node_any = hb.node.as_ref();
+        if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeDirective>>(py) {
+            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+                literal: hb.literal.clone(),
+                node: HeexNode::Directive,
+            }));
+        }
+        if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeComment>>(py) {
+            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+                literal: hb.literal.clone(),
+                node: HeexNode::Comment,
+            }));
+        }
+        if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeMultilineComment>>(py) {
+            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+                literal: hb.literal.clone(),
+                node: HeexNode::MultilineComment,
+            }));
+        }
+        if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeExpression>>(py) {
+            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+                literal: hb.literal.clone(),
+                node: HeexNode::Expression,
+            }));
+        }
+        if let Ok(tag) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeTag>>(py) {
+            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+                literal: hb.literal.clone(),
+                node: HeexNode::Tag(tag.tag.clone()),
+            }));
+        }
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyParagraph>>(py) {
+        return comrak_lib::nodes::NodeValue::Paragraph;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyHeading>>(py) {
+        let h = &v.value;
+        return comrak_lib::nodes::NodeValue::Heading(NodeHeading {
+            level: h.level,
+            setext: h.setext,
+            closed: h.closed,
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyThematicBreak>>(py) {
+        return comrak_lib::nodes::NodeValue::ThematicBreak;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyFootnoteDefinition>>(py) {
+        let f = &v.value;
+        return comrak_lib::nodes::NodeValue::FootnoteDefinition(NodeFootnoteDefinition {
+            name: f.name.clone(),
+            total_references: f.total_references,
+        });
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyTable>>(py) {
+        let t = &v.value;
+        let alignments = t
+            .alignments
+            .iter()
+            .map(|a| match a {
+                PyTableAlignment::None => TableAlignment::None,
+                PyTableAlignment::Left => TableAlignment::Left,
+                PyTableAlignment::Center => TableAlignment::Center,
+                PyTableAlignment::Right => TableAlignment::Right,
+            })
+            .collect();
+
+        return comrak_lib::nodes::NodeValue::Table(Box::new(NodeTable {
+            alignments,
+            num_columns: t.num_columns,
+            num_rows: t.num_rows,
+            num_nonempty_cells: t.num_nonempty_cells,
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyTableRow>>(py) {
+        return comrak_lib::nodes::NodeValue::TableRow(v.value);
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyTableCell>>(py) {
+        return comrak_lib::nodes::NodeValue::TableCell;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyText>>(py) {
+        return comrak_lib::nodes::NodeValue::Text(v.value.clone().into());
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyTaskItem>>(py) {
+        let ti = &v.value;
+        return comrak_lib::nodes::NodeValue::TaskItem(NodeTaskItem {
+            symbol: ti.symbol,
+            symbol_sourcepos: py_sourcepos_to_sourcepos(&ti.symbol_sourcepos),
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PySoftBreak>>(py) {
+        return comrak_lib::nodes::NodeValue::SoftBreak;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyLineBreak>>(py) {
+        return comrak_lib::nodes::NodeValue::LineBreak;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyCode>>(py) {
+        let c = &v.value;
+        return comrak_lib::nodes::NodeValue::Code(NodeCode {
+            num_backticks: c.num_backticks,
+            literal: c.literal.clone(),
+        });
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyHtmlInline>>(py) {
+        return comrak_lib::nodes::NodeValue::HtmlInline(v.value.clone());
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyHeexInline>>(py) {
+        return comrak_lib::nodes::NodeValue::HeexInline(v.value.clone());
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyRaw>>(py) {
+        return comrak_lib::nodes::NodeValue::Raw(v.value.clone());
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyEmph>>(py) {
+        return comrak_lib::nodes::NodeValue::Emph;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyStrong>>(py) {
+        return comrak_lib::nodes::NodeValue::Strong;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyStrikethrough>>(py) {
+        return comrak_lib::nodes::NodeValue::Strikethrough;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyHighlight>>(py) {
+        return comrak_lib::nodes::NodeValue::Highlight;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PySuperscript>>(py) {
+        return comrak_lib::nodes::NodeValue::Superscript;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyLink>>(py) {
+        return comrak_lib::nodes::NodeValue::Link(Box::new(NodeLink {
+            url: v.value.url.clone(),
+            title: v.value.title.clone(),
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyImage>>(py) {
+        return comrak_lib::nodes::NodeValue::Image(Box::new(NodeLink {
+            url: v.value.url.clone(),
+            title: v.value.title.clone(),
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyFootnoteReference>>(py) {
+        let fr = &v.value;
+        return comrak_lib::nodes::NodeValue::FootnoteReference(Box::new(NodeFootnoteReference {
+            name: fr.name.clone(),
+            texts: fr.texts.clone(),
+            ref_num: fr.ref_num,
+            ix: fr.ix,
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyShortCode>>(py) {
+        return comrak_lib::nodes::NodeValue::ShortCode(Box::new(NodeShortCode {
+            code: v.value.code.clone(),
+            emoji: v.value.emoji.clone(),
+        }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyMath>>(py) {
+        return comrak_lib::nodes::NodeValue::Math(NodeMath {
+            dollar_math: v.value.dollar_math,
+            display_math: v.value.display_math,
+            literal: v.value.literal.clone(),
+        });
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyMultilineBlockQuote>>(py) {
+        return comrak_lib::nodes::NodeValue::MultilineBlockQuote(NodeMultilineBlockQuote {
+            fence_length: v.value.fence_length,
+            fence_offset: v.value.fence_offset,
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyEscaped>>(py) {
+        return comrak_lib::nodes::NodeValue::Escaped;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyWikiLink>>(py) {
+        return comrak_lib::nodes::NodeValue::WikiLink(NodeWikiLink {
+            url: v.value.url.clone(),
+        });
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyUnderline>>(py) {
+        return comrak_lib::nodes::NodeValue::Underline;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PySubscript>>(py) {
+        return comrak_lib::nodes::NodeValue::Subscript;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PySpoileredText>>(py) {
+        return comrak_lib::nodes::NodeValue::SpoileredText;
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyEscapedTag>>(py) {
+        return comrak_lib::nodes::NodeValue::EscapedTag(Box::leak(
+            v.value.clone().into_boxed_str(),
+        ));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyAlert>>(py) {
+        let a = &v.value;
+        let alert_type = match a.alert_type {
+            PyAlertType::Note => AlertType::Note,
+            PyAlertType::Tip => AlertType::Tip,
+            PyAlertType::Important => AlertType::Important,
+            PyAlertType::Warning => AlertType::Warning,
+            PyAlertType::Caution => AlertType::Caution,
+        };
+
+        return comrak_lib::nodes::NodeValue::Alert(Box::new(NodeAlert {
+            alert_type,
+            title: a.title.clone(),
+            multiline: a.multiline,
+            fence_length: a.fence_length,
+            fence_offset: a.fence_offset,
+        }));
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PySubtext>>(py) {
+        return comrak_lib::nodes::NodeValue::Subtext;
+    }
+
+    // Fallback: default to Document if unknown
+    comrak_lib::nodes::NodeValue::Document
+}
+
 impl PyAstNode {
     pub fn from_comrak_node<'a>(
         py: Python<'a>,
@@ -1804,5 +2175,31 @@ impl PyAstNode {
         }
 
         current
+    }
+
+    pub fn to_comrak_node<'a>(
+        &self,
+        py: Python<'a>,
+        arena: &'a comrak_lib::Arena<'a>,
+    ) -> &'a comrak_lib::nodes::AstNode<'a> {
+        let node_value = self.node_value.as_ref();
+        let ast_node_value = create_comrak_node_value(py, node_value);
+
+        let node_in_arena = arena.alloc(
+            comrak_lib::nodes::Ast::new_with_sourcepos(
+                ast_node_value,
+                py_sourcepos_to_sourcepos(&self.sourcepos),
+            )
+            .into(),
+        );
+
+        for child in &self.children {
+            let child_handle = child.clone_ref(py);
+            let child_ref = child_handle.borrow(py);
+            let child_ast_node = child_ref.to_comrak_node(py, arena);
+            node_in_arena.append(child_ast_node);
+        }
+
+        node_in_arena
     }
 }
