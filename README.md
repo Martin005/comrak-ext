@@ -23,7 +23,7 @@ pip install comrak-ext
 
 ## Features
 
-Fast Markdown to HTML parser in Rust, shipped for Python via PyO3.
+Fast Markdown parser implemented in Rust, shipped for Python via PyO3.
 
 ## API
 
