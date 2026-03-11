@@ -27,50 +27,9 @@ Fast Markdown parser implemented in Rust, shipped for Python via PyO3.
 
 ## API
 
-### `markdown_to_html`
+### Parsing
 
-Render Markdown to HTML:
-
-```python
-from comrak import ExtensionOptions, markdown_to_html
-extension_options = ExtensionOptions()
-markdown_to_html("foo :smile:", extension_options)
-# '<p>foo :smile:</p>\n'
-
-extension_options.shortcodes = True
-markdown_to_html("foo :smile:", extension_options)
-# '<p>foo 😄</p>\n'
-```
-
-### `markdown_to_commonmark`
-
-Render Markdown to CommonMark:
-
-```python
-from comrak import RenderOptions, ListStyleType, markdown_to_commonmark
-
-render_options = RenderOptions()
-markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
-
-# '- one\n- two\n- three\n' – default is Dash
-render_options.list_style = ListStyleType.Plus
-markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
-# '+ one\n+ two\n+ three\n'
-```
-
-### `markdown_to_xml`
-
-Render Markdown to XML:
-
-```python
-from comrak import RenderOptions, markdown_to_xml
-
-render_options = RenderOptions(sourcepos=True)
-markdown_to_xml("Hello, **Markdown**!", render_options=render_options)
-# '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE document SYSTEM "CommonMark.dtd">\n<document sourcepos="1:1-1:20" xmlns="http://commonmark.org/xml/1.0">\n  <paragraph sourcepos="1:1-1:20">\n    <text sourcepos="1:1-1:7" xml:space="preserve">Hello, </text>\n    <strong sourcepos="1:8-1:19">\n      <text sourcepos="1:10-1:17" xml:space="preserve">Markdown</text>\n    </strong>\n    <text sourcepos="1:20-1:20" xml:space="preserve">!</text>\n  </paragraph>\n</document>\n'
-```
-
-### `parse_document`
+#### `parse_document`
 
 Parse Markdown into an abstract syntax tree (AST):
 
@@ -102,20 +61,69 @@ assert isinstance(x.children[1].children[0].node_value.value, str)
 assert x.children[1].children[0].node_value.value == "Hello, Markdown!"
 ```
 
-### `format_html`
+### Rendering
 
-Format an AST back to HTML:
+#### `markdown_to_commonmark`
+
+Render Markdown to CommonMark:
 
 ```python
-from comrak import parse_document, format_html
+from comrak import RenderOptions, ListStyleType, markdown_to_commonmark
 
-p = parse_document("> Greentext blockquote requires a space after `>`")
+render_options = RenderOptions()
+markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
 
-format_html(p)
-# '<blockquote>\n<p>Greentext blockquote requires a space after <code>&gt;</code></p>\n</blockquote>\n'
+# '- one\n- two\n- three\n' – default is Dash
+render_options.list_style = ListStyleType.Plus
+markdown_to_commonmark("- one\n- two\n- three", render_options=render_options)
+# '+ one\n+ two\n+ three\n'
 ```
 
-### `format_commonmark`
+#### `markdown_to_html`
+
+Render Markdown to HTML:
+
+```python
+from comrak import ExtensionOptions, markdown_to_html
+extension_options = ExtensionOptions()
+markdown_to_html("foo :smile:", extension_options)
+# '<p>foo :smile:</p>\n'
+
+extension_options.shortcodes = True
+markdown_to_html("foo :smile:", extension_options)
+# '<p>foo 😄</p>\n'
+```
+
+#### `markdown_to_typst`
+
+Render Markdown to Typst:
+
+```python
+from comrak import ExtensionOptions, markdown_to_typst
+extension_options = ExtensionOptions()
+markdown_to_typst("foo :smile:", extension_options)
+# 'Ligature : A merged glyph.\n'
+
+extension_options.description_lists = True
+markdown_to_typst("foo :smile:", extension_options)
+# '#terms(\n  terms.item([Ligature], [A merged glyph.]),\n)\n'
+```
+
+#### `markdown_to_xml`
+
+Render Markdown to XML:
+
+```python
+from comrak import RenderOptions, markdown_to_xml
+
+render_options = RenderOptions(sourcepos=True)
+markdown_to_xml("Hello, **Markdown**!", render_options=render_options)
+# '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE document SYSTEM "CommonMark.dtd">\n<document sourcepos="1:1-1:20" xmlns="http://commonmark.org/xml/1.0">\n  <paragraph sourcepos="1:1-1:20">\n    <text sourcepos="1:1-1:7" xml:space="preserve">Hello, </text>\n    <strong sourcepos="1:8-1:19">\n      <text sourcepos="1:10-1:17" xml:space="preserve">Markdown</text>\n    </strong>\n    <text sourcepos="1:20-1:20" xml:space="preserve">!</text>\n  </paragraph>\n</document>\n'
+```
+
+### Formatting AST
+
+#### `format_commonmark`
 
 Format an AST back to CommonMark:
 
@@ -128,7 +136,33 @@ format_commonmark(p)
 # '> Greentext blockquote requires a space after `>`\n'
 ```
 
-### `format_xml`
+#### `format_html`
+
+Format an AST back to HTML:
+
+```python
+from comrak import parse_document, format_html
+
+p = parse_document("> Greentext blockquote requires a space after `>`")
+
+format_html(p)
+# '<blockquote>\n<p>Greentext blockquote requires a space after <code>&gt;</code></p>\n</blockquote>\n'
+```
+
+#### `format_typst`
+
+Format an AST back to Typst:
+
+```python
+from comrak import parse_document, format_typst
+
+p = parse_document("> Greentext blockquote requires a space after `>`")
+
+format_typst(p)
+# '#quote(block: true)[Greentext blockquote requires a space after #raw(">")]\n'
+```
+
+#### `format_xml`
 
 Format an AST back to XML:
 

@@ -1,4 +1,4 @@
-use comrak_lib::nodes::*;
+use comrak::nodes::*;
 use pyo3::{prelude::*, pyclass, IntoPyObjectExt};
 
 #[pyclass(name = "LineColumn", get_all, set_all, eq)]
@@ -1223,6 +1223,18 @@ impl PyHighlight {
     }
 }
 
+#[pyclass(name = "Insert", extends=PyNodeValue, eq)]
+#[derive(PartialEq, Eq)]
+pub struct PyInsert {}
+
+#[pymethods]
+impl PyInsert {
+    #[new]
+    pub fn new() -> (Self, PyNodeValue) {
+        (Self {}, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "Superscript", extends=PyNodeValue, eq)]
 #[derive(PartialEq, Eq)]
 pub struct PySuperscript {}
@@ -1448,28 +1460,28 @@ impl PyAstNode {
     }
 }
 
-fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<PyAny> {
+fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAny> {
     match value {
-        comrak_lib::nodes::NodeValue::Document => Py::new(
+        comrak::nodes::NodeValue::Document => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDocument {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::FrontMatter(s) => Py::new(
+        comrak::nodes::NodeValue::FrontMatter(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyFrontMatter { value: s.clone() }),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::BlockQuote => Py::new(
+        comrak::nodes::NodeValue::BlockQuote => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockQuote {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::List(l) => Py::new(
+        comrak::nodes::NodeValue::List(l) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyList {
                 value: PyNodeList::from(l),
@@ -1477,7 +1489,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Item(i) => Py::new(
+        comrak::nodes::NodeValue::Item(i) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyItem {
                 value: PyNodeList::from(i),
@@ -1485,13 +1497,13 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::DescriptionList => Py::new(
+        comrak::nodes::NodeValue::DescriptionList => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionList {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::DescriptionItem(d) => Py::new(
+        comrak::nodes::NodeValue::DescriptionItem(d) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionItem {
                 value: PyNodeDescriptionItem::from(d),
@@ -1499,19 +1511,19 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::DescriptionTerm => Py::new(
+        comrak::nodes::NodeValue::DescriptionTerm => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionTerm {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::DescriptionDetails => Py::new(
+        comrak::nodes::NodeValue::DescriptionDetails => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionDetails {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::CodeBlock(c) => Py::new(
+        comrak::nodes::NodeValue::CodeBlock(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCodeBlock {
                 value: PyNodeCodeBlock::from(c.as_ref()),
@@ -1519,7 +1531,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::HtmlBlock(h) => Py::new(
+        comrak::nodes::NodeValue::HtmlBlock(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlBlock {
                 value: PyNodeHtmlBlock::from(h),
@@ -1527,7 +1539,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::HeexBlock(h) => Py::new(
+        comrak::nodes::NodeValue::HeexBlock(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeexBlock {
                 value: PyNodeHeexBlock::from((py, h.as_ref())),
@@ -1535,13 +1547,13 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Paragraph => Py::new(
+        comrak::nodes::NodeValue::Paragraph => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyParagraph {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Heading(h) => Py::new(
+        comrak::nodes::NodeValue::Heading(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeading {
                 value: PyNodeHeading::from(h),
@@ -1549,13 +1561,13 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::ThematicBreak => Py::new(
+        comrak::nodes::NodeValue::ThematicBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyThematicBreak {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::FootnoteDefinition(f) => Py::new(
+        comrak::nodes::NodeValue::FootnoteDefinition(f) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteDefinition {
                 value: PyNodeFootnoteDefinition::from(f),
@@ -1563,7 +1575,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Table(t) => Py::new(
+        comrak::nodes::NodeValue::Table(t) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTable {
                 value: PyNodeTable::from(t.as_ref()),
@@ -1571,19 +1583,19 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::TableRow(is_header) => Py::new(
+        comrak::nodes::NodeValue::TableRow(is_header) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableRow { value: *is_header }),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::TableCell => Py::new(
+        comrak::nodes::NodeValue::TableCell => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableCell {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Text(t) => Py::new(
+        comrak::nodes::NodeValue::Text(t) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText {
                 value: t.to_string(),
@@ -1591,7 +1603,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::TaskItem(c) => Py::new(
+        comrak::nodes::NodeValue::TaskItem(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem {
                 value: PyNodeTaskItem::from(c),
@@ -1599,19 +1611,19 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::SoftBreak => Py::new(
+        comrak::nodes::NodeValue::SoftBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySoftBreak {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::LineBreak => Py::new(
+        comrak::nodes::NodeValue::LineBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLineBreak {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Code(c) => Py::new(
+        comrak::nodes::NodeValue::Code(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCode {
                 value: PyNodeCode::from(c),
@@ -1619,57 +1631,63 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::HtmlInline(s) => Py::new(
+        comrak::nodes::NodeValue::HtmlInline(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyHtmlInline { value: s.clone() }),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::HeexInline(s) => Py::new(
+        comrak::nodes::NodeValue::HeexInline(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyHeexInline { value: s.clone() }),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Raw(s) => Py::new(
+        comrak::nodes::NodeValue::Raw(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyRaw { value: s.clone() }),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Emph => Py::new(
+        comrak::nodes::NodeValue::Emph => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEmph {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Strong => Py::new(
+        comrak::nodes::NodeValue::Strong => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrong {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Strikethrough => Py::new(
+        comrak::nodes::NodeValue::Strikethrough => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrikethrough {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Highlight => Py::new(
+        comrak::nodes::NodeValue::Highlight => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHighlight {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Superscript => Py::new(
+        comrak::nodes::NodeValue::Insert => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyInsert {}),
+        )
+        .unwrap()
+        .into(),
+        comrak::nodes::NodeValue::Superscript => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySuperscript {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Link(l) => Py::new(
+        comrak::nodes::NodeValue::Link(l) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLink {
                 value: PyNodeLink::from(l.as_ref()),
@@ -1677,7 +1695,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Image(i) => Py::new(
+        comrak::nodes::NodeValue::Image(i) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyImage {
                 value: PyNodeLink::from(i.as_ref()),
@@ -1685,7 +1703,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::FootnoteReference(f) => Py::new(
+        comrak::nodes::NodeValue::FootnoteReference(f) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteReference {
                 value: PyNodeFootnoteReference::from(f.as_ref()),
@@ -1693,7 +1711,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::ShortCode(s) => Py::new(
+        comrak::nodes::NodeValue::ShortCode(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyShortCode {
                 value: PyNodeShortCode::from(s.as_ref()),
@@ -1701,7 +1719,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Math(m) => Py::new(
+        comrak::nodes::NodeValue::Math(m) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMath {
                 value: PyNodeMath::from(m),
@@ -1709,7 +1727,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::MultilineBlockQuote(m) => Py::new(
+        comrak::nodes::NodeValue::MultilineBlockQuote(m) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMultilineBlockQuote {
                 value: PyNodeMultilineBlockQuote::from(m),
@@ -1717,13 +1735,13 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Escaped => Py::new(
+        comrak::nodes::NodeValue::Escaped => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscaped {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::WikiLink(w) => Py::new(
+        comrak::nodes::NodeValue::WikiLink(w) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyWikiLink {
                 value: PyNodeWikiLink::from(w),
@@ -1731,25 +1749,25 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Underline => Py::new(
+        comrak::nodes::NodeValue::Underline => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyUnderline {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Subscript => Py::new(
+        comrak::nodes::NodeValue::Subscript => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubscript {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::SpoileredText => Py::new(
+        comrak::nodes::NodeValue::SpoileredText => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySpoileredText {}),
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::EscapedTag(s) => Py::new(
+        comrak::nodes::NodeValue::EscapedTag(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscapedTag {
                 value: s.to_string(),
@@ -1757,7 +1775,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Alert(a) => Py::new(
+        comrak::nodes::NodeValue::Alert(a) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyAlert {
                 value: PyNodeAlert::from(a.as_ref()),
@@ -1765,7 +1783,7 @@ fn create_py_node_value(py: Python, value: &comrak_lib::nodes::NodeValue) -> Py<
         )
         .unwrap()
         .into(),
-        comrak_lib::nodes::NodeValue::Subtext => Py::new(
+        comrak::nodes::NodeValue::Subtext => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubtext {}),
         )
@@ -1790,20 +1808,20 @@ fn py_sourcepos_to_sourcepos(sp: &PySourcepos) -> Sourcepos {
 fn create_comrak_node_value<'a>(
     py: Python<'a>,
     node_value: &Py<PyAny>,
-) -> comrak_lib::nodes::NodeValue {
+) -> comrak::nodes::NodeValue {
     let any = node_value.as_ref();
 
     // Try each concrete Python subclass in turn and build the matching NodeValue
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyDocument>>(py) {
-        return comrak_lib::nodes::NodeValue::Document;
+        return comrak::nodes::NodeValue::Document;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyFrontMatter>>(py) {
-        return comrak_lib::nodes::NodeValue::FrontMatter(v.value.clone());
+        return comrak::nodes::NodeValue::FrontMatter(v.value.clone());
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyBlockQuote>>(py) {
-        return comrak_lib::nodes::NodeValue::BlockQuote;
+        return comrak::nodes::NodeValue::BlockQuote;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyList>>(py) {
@@ -1817,7 +1835,7 @@ fn create_comrak_node_value<'a>(
             PyListDelimType::Paren => ListDelimType::Paren,
         };
 
-        return comrak_lib::nodes::NodeValue::List(NodeList {
+        return comrak::nodes::NodeValue::List(NodeList {
             list_type,
             marker_offset: pl.marker_offset,
             padding: pl.padding,
@@ -1840,7 +1858,7 @@ fn create_comrak_node_value<'a>(
             PyListDelimType::Paren => ListDelimType::Paren,
         };
 
-        return comrak_lib::nodes::NodeValue::Item(NodeList {
+        return comrak::nodes::NodeValue::Item(NodeList {
             list_type,
             marker_offset: pl.marker_offset,
             padding: pl.padding,
@@ -1853,12 +1871,12 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionList>>(py) {
-        return comrak_lib::nodes::NodeValue::DescriptionList;
+        return comrak::nodes::NodeValue::DescriptionList;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyDescriptionItem>>(py) {
         let di = &v.value;
-        return comrak_lib::nodes::NodeValue::DescriptionItem(NodeDescriptionItem {
+        return comrak::nodes::NodeValue::DescriptionItem(NodeDescriptionItem {
             marker_offset: di.marker_offset,
             padding: di.padding,
             tight: di.tight,
@@ -1866,16 +1884,16 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionTerm>>(py) {
-        return comrak_lib::nodes::NodeValue::DescriptionTerm;
+        return comrak::nodes::NodeValue::DescriptionTerm;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyDescriptionDetails>>(py) {
-        return comrak_lib::nodes::NodeValue::DescriptionDetails;
+        return comrak::nodes::NodeValue::DescriptionDetails;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyCodeBlock>>(py) {
         let cb = &v.value;
-        return comrak_lib::nodes::NodeValue::CodeBlock(Box::new(NodeCodeBlock {
+        return comrak::nodes::NodeValue::CodeBlock(Box::new(NodeCodeBlock {
             fenced: cb.fenced,
             fence_char: cb.fence_char,
             fence_length: cb.fence_length,
@@ -1888,7 +1906,7 @@ fn create_comrak_node_value<'a>(
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyHtmlBlock>>(py) {
         let hb = &v.value;
-        return comrak_lib::nodes::NodeValue::HtmlBlock(NodeHtmlBlock {
+        return comrak::nodes::NodeValue::HtmlBlock(NodeHtmlBlock {
             block_type: hb.block_type,
             literal: hb.literal.clone(),
         });
@@ -1899,31 +1917,31 @@ fn create_comrak_node_value<'a>(
         // Convert HeexNode Py<PyAny> -> HeexNode
         let py_node_any = hb.node.as_ref();
         if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeDirective>>(py) {
-            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+            return comrak::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
                 literal: hb.literal.clone(),
                 node: HeexNode::Directive,
             }));
         }
         if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeComment>>(py) {
-            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+            return comrak::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
                 literal: hb.literal.clone(),
                 node: HeexNode::Comment,
             }));
         }
         if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeMultilineComment>>(py) {
-            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+            return comrak::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
                 literal: hb.literal.clone(),
                 node: HeexNode::MultilineComment,
             }));
         }
         if let Ok(_) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeExpression>>(py) {
-            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+            return comrak::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
                 literal: hb.literal.clone(),
                 node: HeexNode::Expression,
             }));
         }
         if let Ok(tag) = py_node_any.extract::<pyo3::PyRef<PyHeexNodeTag>>(py) {
-            return comrak_lib::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
+            return comrak::nodes::NodeValue::HeexBlock(Box::new(NodeHeexBlock {
                 literal: hb.literal.clone(),
                 node: HeexNode::Tag(tag.tag.clone()),
             }));
@@ -1931,12 +1949,12 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyParagraph>>(py) {
-        return comrak_lib::nodes::NodeValue::Paragraph;
+        return comrak::nodes::NodeValue::Paragraph;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyHeading>>(py) {
         let h = &v.value;
-        return comrak_lib::nodes::NodeValue::Heading(NodeHeading {
+        return comrak::nodes::NodeValue::Heading(NodeHeading {
             level: h.level,
             setext: h.setext,
             closed: h.closed,
@@ -1944,12 +1962,12 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyThematicBreak>>(py) {
-        return comrak_lib::nodes::NodeValue::ThematicBreak;
+        return comrak::nodes::NodeValue::ThematicBreak;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyFootnoteDefinition>>(py) {
         let f = &v.value;
-        return comrak_lib::nodes::NodeValue::FootnoteDefinition(NodeFootnoteDefinition {
+        return comrak::nodes::NodeValue::FootnoteDefinition(NodeFootnoteDefinition {
             name: f.name.clone(),
             total_references: f.total_references,
         });
@@ -1968,7 +1986,7 @@ fn create_comrak_node_value<'a>(
             })
             .collect();
 
-        return comrak_lib::nodes::NodeValue::Table(Box::new(NodeTable {
+        return comrak::nodes::NodeValue::Table(Box::new(NodeTable {
             alignments,
             num_columns: t.num_columns,
             num_rows: t.num_rows,
@@ -1977,82 +1995,86 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyTableRow>>(py) {
-        return comrak_lib::nodes::NodeValue::TableRow(v.value);
+        return comrak::nodes::NodeValue::TableRow(v.value);
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyTableCell>>(py) {
-        return comrak_lib::nodes::NodeValue::TableCell;
+        return comrak::nodes::NodeValue::TableCell;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyText>>(py) {
-        return comrak_lib::nodes::NodeValue::Text(v.value.clone().into());
+        return comrak::nodes::NodeValue::Text(v.value.clone().into());
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyTaskItem>>(py) {
         let ti = &v.value;
-        return comrak_lib::nodes::NodeValue::TaskItem(NodeTaskItem {
+        return comrak::nodes::NodeValue::TaskItem(NodeTaskItem {
             symbol: ti.symbol,
             symbol_sourcepos: py_sourcepos_to_sourcepos(&ti.symbol_sourcepos),
         });
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySoftBreak>>(py) {
-        return comrak_lib::nodes::NodeValue::SoftBreak;
+        return comrak::nodes::NodeValue::SoftBreak;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyLineBreak>>(py) {
-        return comrak_lib::nodes::NodeValue::LineBreak;
+        return comrak::nodes::NodeValue::LineBreak;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyCode>>(py) {
         let c = &v.value;
-        return comrak_lib::nodes::NodeValue::Code(NodeCode {
+        return comrak::nodes::NodeValue::Code(NodeCode {
             num_backticks: c.num_backticks,
             literal: c.literal.clone(),
         });
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyHtmlInline>>(py) {
-        return comrak_lib::nodes::NodeValue::HtmlInline(v.value.clone());
+        return comrak::nodes::NodeValue::HtmlInline(v.value.clone());
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyHeexInline>>(py) {
-        return comrak_lib::nodes::NodeValue::HeexInline(v.value.clone());
+        return comrak::nodes::NodeValue::HeexInline(v.value.clone());
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyRaw>>(py) {
-        return comrak_lib::nodes::NodeValue::Raw(v.value.clone());
+        return comrak::nodes::NodeValue::Raw(v.value.clone());
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyEmph>>(py) {
-        return comrak_lib::nodes::NodeValue::Emph;
+        return comrak::nodes::NodeValue::Emph;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyStrong>>(py) {
-        return comrak_lib::nodes::NodeValue::Strong;
+        return comrak::nodes::NodeValue::Strong;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyStrikethrough>>(py) {
-        return comrak_lib::nodes::NodeValue::Strikethrough;
+        return comrak::nodes::NodeValue::Strikethrough;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyHighlight>>(py) {
-        return comrak_lib::nodes::NodeValue::Highlight;
+        return comrak::nodes::NodeValue::Highlight;
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyInsert>>(py) {
+        return comrak::nodes::NodeValue::Insert;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySuperscript>>(py) {
-        return comrak_lib::nodes::NodeValue::Superscript;
+        return comrak::nodes::NodeValue::Superscript;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyLink>>(py) {
-        return comrak_lib::nodes::NodeValue::Link(Box::new(NodeLink {
+        return comrak::nodes::NodeValue::Link(Box::new(NodeLink {
             url: v.value.url.clone(),
             title: v.value.title.clone(),
         }));
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyImage>>(py) {
-        return comrak_lib::nodes::NodeValue::Image(Box::new(NodeLink {
+        return comrak::nodes::NodeValue::Image(Box::new(NodeLink {
             url: v.value.url.clone(),
             title: v.value.title.clone(),
         }));
@@ -2060,7 +2082,7 @@ fn create_comrak_node_value<'a>(
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyFootnoteReference>>(py) {
         let fr = &v.value;
-        return comrak_lib::nodes::NodeValue::FootnoteReference(Box::new(NodeFootnoteReference {
+        return comrak::nodes::NodeValue::FootnoteReference(Box::new(NodeFootnoteReference {
             name: fr.name.clone(),
             texts: fr.texts.clone(),
             ref_num: fr.ref_num,
@@ -2069,14 +2091,14 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyShortCode>>(py) {
-        return comrak_lib::nodes::NodeValue::ShortCode(Box::new(NodeShortCode {
+        return comrak::nodes::NodeValue::ShortCode(Box::new(NodeShortCode {
             code: v.value.code.clone(),
             emoji: v.value.emoji.clone(),
         }));
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyMath>>(py) {
-        return comrak_lib::nodes::NodeValue::Math(NodeMath {
+        return comrak::nodes::NodeValue::Math(NodeMath {
             dollar_math: v.value.dollar_math,
             display_math: v.value.display_math,
             literal: v.value.literal.clone(),
@@ -2084,38 +2106,36 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyMultilineBlockQuote>>(py) {
-        return comrak_lib::nodes::NodeValue::MultilineBlockQuote(NodeMultilineBlockQuote {
+        return comrak::nodes::NodeValue::MultilineBlockQuote(NodeMultilineBlockQuote {
             fence_length: v.value.fence_length,
             fence_offset: v.value.fence_offset,
         });
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyEscaped>>(py) {
-        return comrak_lib::nodes::NodeValue::Escaped;
+        return comrak::nodes::NodeValue::Escaped;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyWikiLink>>(py) {
-        return comrak_lib::nodes::NodeValue::WikiLink(NodeWikiLink {
+        return comrak::nodes::NodeValue::WikiLink(NodeWikiLink {
             url: v.value.url.clone(),
         });
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PyUnderline>>(py) {
-        return comrak_lib::nodes::NodeValue::Underline;
+        return comrak::nodes::NodeValue::Underline;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySubscript>>(py) {
-        return comrak_lib::nodes::NodeValue::Subscript;
+        return comrak::nodes::NodeValue::Subscript;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySpoileredText>>(py) {
-        return comrak_lib::nodes::NodeValue::SpoileredText;
+        return comrak::nodes::NodeValue::SpoileredText;
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyEscapedTag>>(py) {
-        return comrak_lib::nodes::NodeValue::EscapedTag(Box::leak(
-            v.value.clone().into_boxed_str(),
-        ));
+        return comrak::nodes::NodeValue::EscapedTag(Box::leak(v.value.clone().into_boxed_str()));
     }
 
     if let Ok(v) = any.extract::<pyo3::PyRef<PyAlert>>(py) {
@@ -2128,7 +2148,7 @@ fn create_comrak_node_value<'a>(
             PyAlertType::Caution => AlertType::Caution,
         };
 
-        return comrak_lib::nodes::NodeValue::Alert(Box::new(NodeAlert {
+        return comrak::nodes::NodeValue::Alert(Box::new(NodeAlert {
             alert_type,
             title: a.title.clone(),
             multiline: a.multiline,
@@ -2138,11 +2158,11 @@ fn create_comrak_node_value<'a>(
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySubtext>>(py) {
-        return comrak_lib::nodes::NodeValue::Subtext;
+        return comrak::nodes::NodeValue::Subtext;
     }
 
     // Fallback: default to Document if unknown
-    comrak_lib::nodes::NodeValue::Document
+    comrak::nodes::NodeValue::Document
 }
 
 impl PyAstNode {
@@ -2180,13 +2200,13 @@ impl PyAstNode {
     pub fn to_comrak_node<'a>(
         &self,
         py: Python<'a>,
-        arena: &'a comrak_lib::Arena<'a>,
-    ) -> &'a comrak_lib::nodes::AstNode<'a> {
+        arena: &'a comrak::Arena<'a>,
+    ) -> &'a comrak::nodes::AstNode<'a> {
         let node_value = self.node_value.as_ref();
         let ast_node_value = create_comrak_node_value(py, node_value);
 
         let node_in_arena = arena.alloc(
-            comrak_lib::nodes::Ast::new_with_sourcepos(
+            comrak::nodes::Ast::new_with_sourcepos(
                 ast_node_value,
                 py_sourcepos_to_sourcepos(&self.sourcepos),
             )
