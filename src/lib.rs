@@ -1,9 +1,9 @@
 use pyo3::prelude::*;
 
-// We renamed the Rust library to `comrak_lib`
-use comrak_lib::{
-    format_commonmark, format_html, format_xml, markdown_to_commonmark, markdown_to_commonmark_xml,
-    markdown_to_html, parse_document, Arena, Options as ComrakOptions,
+use ::comrak::{
+    format_commonmark, format_html, format_typst, format_xml, markdown_to_commonmark,
+    markdown_to_commonmark_xml, markdown_to_html, markdown_to_typst, parse_document, Arena,
+    Options as ComrakOptions,
 };
 
 // Import the Python option classes we defined
@@ -26,87 +26,7 @@ use astnode::{
     PyText, PyThematicBreak, PyUnderline, PyWikiLink,
 };
 
-/// Render a Markdown string to HTML, with optional Extension/Parse/Render overrides.
-#[pyfunction(name = "markdown_to_html", signature=(text, extension_options=None, parse_options=None, render_options=None))]
-fn render_markdown(
-    text: &str,
-    extension_options: Option<PyExtensionOptions>,
-    parse_options: Option<PyParseOptions>,
-    render_options: Option<PyRenderOptions>,
-) -> PyResult<String> {
-    let mut opts = ComrakOptions::default();
-
-    // If user provided custom extension options, apply them.
-    if let Some(py_ext) = extension_options {
-        py_ext.update_extension_options(&mut opts.extension);
-    }
-
-    if let Some(py_parse) = parse_options {
-        py_parse.update_parse_options(&mut opts.parse);
-    }
-
-    if let Some(py_render) = render_options {
-        py_render.update_render_options(&mut opts.render);
-    }
-
-    let html = markdown_to_html(text, &opts);
-    Ok(html)
-}
-
-/// Convert a Markdown string to CommonMark format.
-#[pyfunction(name = "markdown_to_commonmark", signature=(text, extension_options=None, parse_options=None, render_options=None))]
-fn render_markdown_to_commonmark(
-    text: &str,
-    extension_options: Option<PyExtensionOptions>,
-    parse_options: Option<PyParseOptions>,
-    render_options: Option<PyRenderOptions>,
-) -> PyResult<String> {
-    let mut opts = ComrakOptions::default();
-
-    // If user provided custom extension options, apply them.
-    if let Some(py_ext) = extension_options {
-        py_ext.update_extension_options(&mut opts.extension);
-    }
-
-    if let Some(py_parse) = parse_options {
-        py_parse.update_parse_options(&mut opts.parse);
-    }
-
-    if let Some(py_render) = render_options {
-        py_render.update_render_options(&mut opts.render);
-    }
-
-    let html = markdown_to_commonmark(text, &opts);
-    Ok(html)
-}
-
-#[pyfunction(name = "markdown_to_xml", signature=(text, extension_options=None, parse_options=None, render_options=None))]
-fn render_markdown_to_commonmark_xml(
-    text: &str,
-    extension_options: Option<PyExtensionOptions>,
-    parse_options: Option<PyParseOptions>,
-    render_options: Option<PyRenderOptions>,
-) -> PyResult<String> {
-    let mut opts = ComrakOptions::default();
-
-    // If user provided custom extension options, apply them.
-    if let Some(py_ext) = extension_options {
-        py_ext.update_extension_options(&mut opts.extension);
-    }
-
-    if let Some(py_parse) = parse_options {
-        py_parse.update_parse_options(&mut opts.parse);
-    }
-
-    if let Some(py_render) = render_options {
-        py_render.update_render_options(&mut opts.render);
-    }
-
-    let xml = markdown_to_commonmark_xml(text, &opts);
-    Ok(xml)
-}
-
-// Parse a Markdown string into a document structure and return as PyAstNode.
+/// Parse a Markdown string into a document structure and return as PyAstNode.
 #[pyfunction(name = "parse_document", signature=(text, extension_options=None, parse_options=None, render_options=None))]
 fn parse_markdown(
     py: Python,
@@ -134,6 +54,112 @@ fn parse_markdown(
     let document = parse_document(&arena, text, &opts);
     let py_node = PyAstNode::from_comrak_node(py, document, None);
     Ok(py_node)
+}
+
+/// Convert a Markdown string to CommonMark format.
+#[pyfunction(name = "markdown_to_commonmark", signature=(text, extension_options=None, parse_options=None, render_options=None))]
+fn render_markdown_to_commonmark(
+    text: &str,
+    extension_options: Option<PyExtensionOptions>,
+    parse_options: Option<PyParseOptions>,
+    render_options: Option<PyRenderOptions>,
+) -> PyResult<String> {
+    let mut opts = ComrakOptions::default();
+
+    // If user provided custom extension options, apply them.
+    if let Some(py_ext) = extension_options {
+        py_ext.update_extension_options(&mut opts.extension);
+    }
+
+    if let Some(py_parse) = parse_options {
+        py_parse.update_parse_options(&mut opts.parse);
+    }
+
+    if let Some(py_render) = render_options {
+        py_render.update_render_options(&mut opts.render);
+    }
+
+    let commonmark = markdown_to_commonmark(text, &opts);
+    Ok(commonmark)
+}
+
+/// Render a Markdown string to HTML, with optional Extension/Parse/Render overrides.
+#[pyfunction(name = "markdown_to_html", signature=(text, extension_options=None, parse_options=None, render_options=None))]
+fn render_markdown_to_html(
+    text: &str,
+    extension_options: Option<PyExtensionOptions>,
+    parse_options: Option<PyParseOptions>,
+    render_options: Option<PyRenderOptions>,
+) -> PyResult<String> {
+    let mut opts = ComrakOptions::default();
+
+    // If user provided custom extension options, apply them.
+    if let Some(py_ext) = extension_options {
+        py_ext.update_extension_options(&mut opts.extension);
+    }
+
+    if let Some(py_parse) = parse_options {
+        py_parse.update_parse_options(&mut opts.parse);
+    }
+
+    if let Some(py_render) = render_options {
+        py_render.update_render_options(&mut opts.render);
+    }
+
+    let html = markdown_to_html(text, &opts);
+    Ok(html)
+}
+
+#[pyfunction(name = "markdown_to_typst", signature=(text, extension_options=None, parse_options=None, render_options=None))]
+fn render_markdown_to_typst(
+    text: &str,
+    extension_options: Option<PyExtensionOptions>,
+    parse_options: Option<PyParseOptions>,
+    render_options: Option<PyRenderOptions>,
+) -> PyResult<String> {
+    let mut opts = ComrakOptions::default();
+
+    // If user provided custom extension options, apply them.
+    if let Some(py_ext) = extension_options {
+        py_ext.update_extension_options(&mut opts.extension);
+    }
+
+    if let Some(py_parse) = parse_options {
+        py_parse.update_parse_options(&mut opts.parse);
+    }
+
+    if let Some(py_render) = render_options {
+        py_render.update_render_options(&mut opts.render);
+    }
+
+    let typst = markdown_to_typst(text, &opts);
+    Ok(typst)
+}
+
+#[pyfunction(name = "markdown_to_xml", signature=(text, extension_options=None, parse_options=None, render_options=None))]
+fn render_markdown_to_xml(
+    text: &str,
+    extension_options: Option<PyExtensionOptions>,
+    parse_options: Option<PyParseOptions>,
+    render_options: Option<PyRenderOptions>,
+) -> PyResult<String> {
+    let mut opts = ComrakOptions::default();
+
+    // If user provided custom extension options, apply them.
+    if let Some(py_ext) = extension_options {
+        py_ext.update_extension_options(&mut opts.extension);
+    }
+
+    if let Some(py_parse) = parse_options {
+        py_parse.update_parse_options(&mut opts.parse);
+    }
+
+    if let Some(py_render) = render_options {
+        py_render.update_render_options(&mut opts.render);
+    }
+
+    let xml = markdown_to_commonmark_xml(text, &opts);
+    Ok(xml)
 }
 
 #[pyfunction(name = "format_commonmark", signature=(root, extension_options=None, parse_options=None, render_options=None))]
@@ -196,6 +222,36 @@ fn ast_format_html(
     Ok(output)
 }
 
+#[pyfunction(name = "format_typst", signature=(root, extension_options=None, parse_options=None, render_options=None))]
+fn ast_format_typst(
+    py: Python,
+    root: &PyAstNode,
+    extension_options: Option<PyExtensionOptions>,
+    parse_options: Option<PyParseOptions>,
+    render_options: Option<PyRenderOptions>,
+) -> PyResult<String> {
+    let mut opts = ComrakOptions::default();
+
+    // If user provided custom extension options, apply them.
+    if let Some(py_ext) = extension_options {
+        py_ext.update_extension_options(&mut opts.extension);
+    }
+
+    if let Some(py_parse) = parse_options {
+        py_parse.update_parse_options(&mut opts.parse);
+    }
+
+    if let Some(py_render) = render_options {
+        py_render.update_render_options(&mut opts.render);
+    }
+
+    let mut output = String::new();
+    let arena = Arena::new();
+    let root_node = root.to_comrak_node(py, &arena);
+    format_typst(root_node, &opts, &mut output).unwrap();
+    Ok(output)
+}
+
 #[pyfunction(name = "format_xml", signature=(root, extension_options=None, parse_options=None, render_options=None))]
 fn ast_format_xml(
     py: Python,
@@ -229,14 +285,15 @@ fn ast_format_xml(
 #[pymodule]
 fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Expose the function
-    m.add_function(wrap_pyfunction!(render_markdown, m)?)?;
     m.add_function(wrap_pyfunction!(parse_markdown, m)?)?;
     m.add_function(wrap_pyfunction!(render_markdown_to_commonmark, m)?)?;
-    m.add_function(wrap_pyfunction!(render_markdown_to_commonmark_xml, m)?)?;
+    m.add_function(wrap_pyfunction!(render_markdown_to_html, m)?)?;
+    m.add_function(wrap_pyfunction!(render_markdown_to_typst, m)?)?;
+    m.add_function(wrap_pyfunction!(render_markdown_to_xml, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_commonmark, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_html, m)?)?;
+    m.add_function(wrap_pyfunction!(ast_format_typst, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_xml, m)?)?;
-
     // Expose the classes
     m.add_class::<PyExtensionOptions>()?;
     m.add_class::<PyParseOptions>()?;

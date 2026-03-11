@@ -1,7 +1,6 @@
 use pyo3::prelude::*;
 
-// Import the Comrak (Rust) types under `comrak_lib::`
-use comrak_lib::options::{
+use comrak::options::{
     Extension as ComrakExtensionOptions, Parse as ComrakParseOptions, Render as ComrakRenderOptions,
 };
 
@@ -34,6 +33,7 @@ pub struct PyExtensionOptions {
     pub cjk_friendly_emphasis: bool,
     pub subtext: bool,
     pub highlight: bool,
+    pub insert: bool,
     pub phoenix_heex: bool,
 }
 
@@ -65,6 +65,7 @@ impl PyExtensionOptions {
         opts.cjk_friendly_emphasis = self.cjk_friendly_emphasis;
         opts.subtext = self.subtext;
         opts.highlight = self.highlight;
+        opts.insert = self.insert;
         opts.phoenix_heex = self.phoenix_heex;
     }
 }
@@ -98,6 +99,7 @@ impl PyExtensionOptions {
         cjk_friendly_emphasis=None,
         subtext=None,
         highlight=None,
+        insert=None,
         phoenix_heex=None,
     ))]
     pub fn new(
@@ -126,6 +128,7 @@ impl PyExtensionOptions {
         cjk_friendly_emphasis: Option<bool>,
         subtext: Option<bool>,
         highlight: Option<bool>,
+        insert: Option<bool>,
         phoenix_heex: Option<bool>,
     ) -> Self {
         let defaults = ComrakExtensionOptions::default();
@@ -159,6 +162,7 @@ impl PyExtensionOptions {
             cjk_friendly_emphasis: cjk_friendly_emphasis.unwrap_or(defaults.cjk_friendly_emphasis),
             subtext: subtext.unwrap_or(defaults.subtext),
             highlight: highlight.unwrap_or(defaults.highlight),
+            insert: insert.unwrap_or(defaults.insert),
             phoenix_heex: phoenix_heex.unwrap_or(defaults.phoenix_heex),
         }
     }
@@ -259,6 +263,7 @@ pub struct PyRenderOptions {
     pub tasklist_classes: bool,
     pub ol_width: usize,
     pub experimental_minimize_commonmark: bool,
+    pub compact_html: bool,
 }
 
 impl PyRenderOptions {
@@ -272,9 +277,9 @@ impl PyRenderOptions {
         opts.escape = self.escape;
         // convert integer to ListStyleType
         opts.list_style = match self.list_style {
-            PyListStyleType::Dash => comrak_lib::options::ListStyleType::Dash,
-            PyListStyleType::Plus => comrak_lib::options::ListStyleType::Plus,
-            PyListStyleType::Star => comrak_lib::options::ListStyleType::Star,
+            PyListStyleType::Dash => comrak::options::ListStyleType::Dash,
+            PyListStyleType::Plus => comrak::options::ListStyleType::Plus,
+            PyListStyleType::Star => comrak::options::ListStyleType::Star,
         };
         opts.sourcepos = self.sourcepos;
         opts.escaped_char_spans = self.escaped_char_spans;
@@ -285,6 +290,7 @@ impl PyRenderOptions {
         opts.tasklist_classes = self.tasklist_classes;
         opts.ol_width = self.ol_width;
         opts.experimental_minimize_commonmark = self.experimental_minimize_commonmark;
+        opts.compact_html = self.compact_html;
     }
 }
 
@@ -308,6 +314,7 @@ impl PyRenderOptions {
         tasklist_classes=None,
         ol_width=None,
         experimental_minimize_commonmark=None,
+        compact_html=None,
     ))]
     pub fn new(
         hardbreaks: Option<bool>,
@@ -326,6 +333,7 @@ impl PyRenderOptions {
         tasklist_classes: Option<bool>,
         ol_width: Option<usize>,
         experimental_minimize_commonmark: Option<bool>,
+        compact_html: Option<bool>,
     ) -> Self {
         let defaults = ComrakRenderOptions::default();
         Self {
@@ -336,9 +344,9 @@ impl PyRenderOptions {
             r#unsafe: unsafe_.unwrap_or(defaults.r#unsafe),
             escape: escape.unwrap_or(defaults.escape),
             list_style: list_style.unwrap_or(match defaults.list_style {
-                comrak_lib::options::ListStyleType::Dash => PyListStyleType::Dash,
-                comrak_lib::options::ListStyleType::Plus => PyListStyleType::Plus,
-                comrak_lib::options::ListStyleType::Star => PyListStyleType::Star,
+                comrak::options::ListStyleType::Dash => PyListStyleType::Dash,
+                comrak::options::ListStyleType::Plus => PyListStyleType::Plus,
+                comrak::options::ListStyleType::Star => PyListStyleType::Star,
             }),
             sourcepos: sourcepos.unwrap_or(defaults.sourcepos),
             escaped_char_spans: escaped_char_spans.unwrap_or(defaults.escaped_char_spans),
@@ -350,6 +358,7 @@ impl PyRenderOptions {
             ol_width: ol_width.unwrap_or(defaults.ol_width),
             experimental_minimize_commonmark: experimental_minimize_commonmark
                 .unwrap_or(defaults.experimental_minimize_commonmark),
+            compact_html: compact_html.unwrap_or(defaults.compact_html),
         }
     }
 }

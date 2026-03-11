@@ -300,6 +300,9 @@ class Strikethrough(NodeValue[None]):
 class Highlight(NodeValue[None]):
     def __init__(self) -> None: ...
 
+class Insert(NodeValue[None]):
+    def __init__(self) -> None: ...
+
 class Superscript(NodeValue[None]):
     def __init__(self) -> None: ...
 
@@ -403,6 +406,7 @@ class ExtensionOptions:
     cjk_friendly_emphasis: bool
     subtext: bool
     highlight: bool
+    insert: bool
     phoenix_heex: bool
     def __init__(
         self,
@@ -431,6 +435,7 @@ class ExtensionOptions:
         cjk_friendly_emphasis: bool = False,
         subtext: bool = False,
         highlight: bool = False,
+        insert: bool = False,
         phoenix_heex: bool = False,
     ) -> None: ...
 
@@ -472,6 +477,7 @@ class RenderOptions:
     tasklist_classes: bool
     ol_width: int
     experimental_minimize_commonmark: bool
+    compact_html: bool
     def __init__(
         self,
         hardbreaks: bool = False,
@@ -490,15 +496,28 @@ class RenderOptions:
         tasklist_classes: bool = False,
         ol_width: int = 0,
         experimental_minimize_commonmark: bool = False,
+        compact_html: bool = False,
     ) -> None: ...
 
+def parse_document(
+    text: str,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> AstNode: ...
+def markdown_to_commonmark(
+    text: str,
+    extension_options: Optional[ExtensionOptions] = None,
+    parse_options: Optional[ParseOptions] = None,
+    render_options: Optional[RenderOptions] = None,
+) -> str: ...
 def markdown_to_html(
     text: str,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
-def markdown_to_commonmark(
+def markdown_to_typst(
     text: str,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
@@ -510,19 +529,19 @@ def markdown_to_xml(
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
-def parse_document(
-    text: str,
+def format_commonmark(
+    node: AstNode,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
-) -> AstNode: ...
+) -> str: ...
 def format_html(
     node: AstNode,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
-def format_commonmark(
+def format_typst(
     node: AstNode,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
