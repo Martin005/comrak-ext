@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/pypi/l/comrak-ext.svg)](https://pypi.python.org/pypi/comrak-ext)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Martin005/comrak-ext/master.svg)](https://results.pre-commit.ci/latest/github/Martin005/comrak-ext/master)
 
-Extended Python bindings for the Comrak Rust library, a fast CommonMark/GFM parser. Fork of [lmmx/comrak](https://github.com/lmmx/comrak).
+Extended Python bindings for the [`comrak`](https://crates.io/crates/comrak) Rust crate, a fast CommonMark/GFM parser. Fork of [lmmx/comrak](https://github.com/lmmx/comrak).
 
 ## Installation
 
