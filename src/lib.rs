@@ -1,9 +1,8 @@
 use pyo3::prelude::*;
 
 use ::comrak::{
-    format_commonmark, format_html, format_typst, format_xml, markdown_to_commonmark,
-    markdown_to_commonmark_xml, markdown_to_html, markdown_to_typst, parse_document, Arena,
-    Options as ComrakOptions,
+    format_commonmark, format_html, format_xml, markdown_to_commonmark, markdown_to_commonmark_xml,
+    markdown_to_html, parse_document, Arena, Options as ComrakOptions,
 };
 
 // Import the Python option classes we defined
@@ -11,19 +10,19 @@ mod options;
 use options::{PyExtensionOptions, PyListStyleType, PyParseOptions, PyRenderOptions};
 mod astnode;
 use astnode::{
-    PyAlert, PyAlertType, PyAstNode, PyBlockQuote, PyCode, PyCodeBlock, PyDescriptionDetails,
-    PyDescriptionItem, PyDescriptionList, PyDescriptionTerm, PyDocument, PyEmph, PyEscaped,
-    PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter, PyHeading, PyHeexBlock,
-    PyHeexInline, PyHeexNode, PyHeexNodeComment, PyHeexNodeDirective, PyHeexNodeExpression,
-    PyHeexNodeMultilineComment, PyHeexNodeTag, PyHighlight, PyHtmlBlock, PyHtmlInline, PyImage,
-    PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType, PyListType, PyMath,
-    PyMultilineBlockQuote, PyNodeAlert, PyNodeCode, PyNodeCodeBlock, PyNodeDescriptionItem,
-    PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeHeading, PyNodeHeexBlock,
-    PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath, PyNodeMultilineBlockQuote,
-    PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue, PyNodeWikiLink, PyParagraph, PyRaw,
-    PyShortCode, PySoftBreak, PySourcepos, PySpoileredText, PyStrikethrough, PyStrong, PySubscript,
-    PySubtext, PySuperscript, PyTable, PyTableAlignment, PyTableCell, PyTableRow, PyTaskItem,
-    PyText, PyThematicBreak, PyUnderline, PyWikiLink,
+    PyAlert, PyAlertType, PyAstNode, PyBlockDirective, PyBlockQuote, PyCode, PyCodeBlock,
+    PyDescriptionDetails, PyDescriptionItem, PyDescriptionList, PyDescriptionTerm, PyDocument,
+    PyEmph, PyEscaped, PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter,
+    PyHeading, PyHeexBlock, PyHeexInline, PyHeexNode, PyHeexNodeComment, PyHeexNodeDirective,
+    PyHeexNodeExpression, PyHeexNodeMultilineComment, PyHeexNodeTag, PyHighlight, PyHtmlBlock,
+    PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType,
+    PyListType, PyMath, PyMultilineBlockQuote, PyNodeAlert, PyNodeBlockDirective, PyNodeCode,
+    PyNodeCodeBlock, PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference,
+    PyNodeHeading, PyNodeHeexBlock, PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath,
+    PyNodeMultilineBlockQuote, PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue,
+    PyNodeWikiLink, PyParagraph, PyRaw, PyShortCode, PySoftBreak, PySourcepos, PySpoileredText,
+    PyStrikethrough, PyStrong, PySubscript, PySubtext, PySuperscript, PyTable, PyTableAlignment,
+    PyTableCell, PyTableRow, PyTaskItem, PyText, PyThematicBreak, PyUnderline, PyWikiLink,
 };
 
 /// Parse a Markdown string into a document structure and return as PyAstNode.
@@ -108,32 +107,6 @@ fn render_markdown_to_html(
 
     let html = markdown_to_html(text, &opts);
     Ok(html)
-}
-
-#[pyfunction(name = "markdown_to_typst", signature=(text, extension_options=None, parse_options=None, render_options=None))]
-fn render_markdown_to_typst(
-    text: &str,
-    extension_options: Option<PyExtensionOptions>,
-    parse_options: Option<PyParseOptions>,
-    render_options: Option<PyRenderOptions>,
-) -> PyResult<String> {
-    let mut opts = ComrakOptions::default();
-
-    // If user provided custom extension options, apply them.
-    if let Some(py_ext) = extension_options {
-        py_ext.update_extension_options(&mut opts.extension);
-    }
-
-    if let Some(py_parse) = parse_options {
-        py_parse.update_parse_options(&mut opts.parse);
-    }
-
-    if let Some(py_render) = render_options {
-        py_render.update_render_options(&mut opts.render);
-    }
-
-    let typst = markdown_to_typst(text, &opts);
-    Ok(typst)
 }
 
 #[pyfunction(name = "markdown_to_xml", signature=(text, extension_options=None, parse_options=None, render_options=None))]
@@ -222,36 +195,6 @@ fn ast_format_html(
     Ok(output)
 }
 
-#[pyfunction(name = "format_typst", signature=(root, extension_options=None, parse_options=None, render_options=None))]
-fn ast_format_typst(
-    py: Python,
-    root: &PyAstNode,
-    extension_options: Option<PyExtensionOptions>,
-    parse_options: Option<PyParseOptions>,
-    render_options: Option<PyRenderOptions>,
-) -> PyResult<String> {
-    let mut opts = ComrakOptions::default();
-
-    // If user provided custom extension options, apply them.
-    if let Some(py_ext) = extension_options {
-        py_ext.update_extension_options(&mut opts.extension);
-    }
-
-    if let Some(py_parse) = parse_options {
-        py_parse.update_parse_options(&mut opts.parse);
-    }
-
-    if let Some(py_render) = render_options {
-        py_render.update_render_options(&mut opts.render);
-    }
-
-    let mut output = String::new();
-    let arena = Arena::new();
-    let root_node = root.to_comrak_node(py, &arena);
-    format_typst(root_node, &opts, &mut output).unwrap();
-    Ok(output)
-}
-
 #[pyfunction(name = "format_xml", signature=(root, extension_options=None, parse_options=None, render_options=None))]
 fn ast_format_xml(
     py: Python,
@@ -288,11 +231,9 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse_markdown, m)?)?;
     m.add_function(wrap_pyfunction!(render_markdown_to_commonmark, m)?)?;
     m.add_function(wrap_pyfunction!(render_markdown_to_html, m)?)?;
-    m.add_function(wrap_pyfunction!(render_markdown_to_typst, m)?)?;
     m.add_function(wrap_pyfunction!(render_markdown_to_xml, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_commonmark, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_html, m)?)?;
-    m.add_function(wrap_pyfunction!(ast_format_typst, m)?)?;
     m.add_function(wrap_pyfunction!(ast_format_xml, m)?)?;
     // Expose the classes
     m.add_class::<PyExtensionOptions>()?;
@@ -344,6 +285,7 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySpoileredText>()?;
     m.add_class::<PyEscapedTag>()?;
     m.add_class::<PyAlert>()?;
+    m.add_class::<PyBlockDirective>()?;
     m.add_class::<PyNodeCode>()?;
     m.add_class::<PyNodeHtmlBlock>()?;
     m.add_class::<PyListDelimType>()?;
@@ -363,6 +305,7 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyNodeMultilineBlockQuote>()?;
     m.add_class::<PyAlertType>()?;
     m.add_class::<PyNodeAlert>()?;
+    m.add_class::<PyNodeBlockDirective>()?;
     m.add_class::<PyAstNode>()?;
     m.add_class::<PyHeexNode>()?;
     m.add_class::<PyHeexNodeTag>()?;

@@ -169,6 +169,12 @@ class NodeAlert:
         fence_offset: int,
     ) -> None: ...
 
+class NodeBlockDirective:
+    fence_length: int
+    fence_offset: int
+    info: str
+    def __init__(self, fence_length: int, fence_offset: int, info: str) -> None: ...
+
 class HeexNodeDirective(HeexNode[None]):
     def __init__(self) -> None: ...
 
@@ -357,6 +363,10 @@ class Alert(NodeValue[NodeAlert]):
 class Subtext(NodeValue[None]):
     def __init__(self) -> None: ...
 
+class BlockDirective(NodeValue[NodeBlockDirective]):
+    value: NodeBlockDirective
+    def __init__(self, value: NodeBlockDirective) -> None: ...
+
 class LineColumn:
     line: int
     column: int
@@ -387,7 +397,8 @@ class ExtensionOptions:
     autolink: bool
     tasklist: bool
     superscript: bool
-    header_ids: Optional[str]
+    header_id_prefix: Optional[str]
+    header_id_prefix_in_href: bool
     footnotes: bool
     inline_footnotes: bool
     description_lists: bool
@@ -408,6 +419,7 @@ class ExtensionOptions:
     highlight: bool
     insert: bool
     phoenix_heex: bool
+    block_directive: bool
     def __init__(
         self,
         strikethrough: bool = False,
@@ -416,7 +428,8 @@ class ExtensionOptions:
         autolink: bool = False,
         tasklist: bool = False,
         superscript: bool = False,
-        header_ids: Optional[str] = None,
+        header_id_prefix: Optional[str] = None,
+        header_id_prefix_in_href: bool = False,
         footnotes: bool = False,
         inline_footnotes: bool = False,
         description_lists: bool = False,
@@ -437,6 +450,7 @@ class ExtensionOptions:
         highlight: bool = False,
         insert: bool = False,
         phoenix_heex: bool = False,
+        block_directive: bool = False,
     ) -> None: ...
 
 class ParseOptions:
@@ -448,6 +462,7 @@ class ParseOptions:
     ignore_setext: bool
     leave_footnote_definitions: bool
     escaped_char_spans: bool
+    sourcepos_chars: bool
     def __init__(
         self,
         smart: bool = False,
@@ -458,6 +473,7 @@ class ParseOptions:
         ignore_setext: bool = False,
         leave_footnote_definitions: bool = False,
         escaped_char_spans: bool = False,
+        sourcepos_chars: bool = False,
     ) -> None: ...
 
 class RenderOptions:
@@ -517,12 +533,6 @@ def markdown_to_html(
     parse_options: Optional[ParseOptions] = None,
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
-def markdown_to_typst(
-    text: str,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
-) -> str: ...
 def markdown_to_xml(
     text: str,
     extension_options: Optional[ExtensionOptions] = None,
@@ -536,12 +546,6 @@ def format_commonmark(
     render_options: Optional[RenderOptions] = None,
 ) -> str: ...
 def format_html(
-    node: AstNode,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
-) -> str: ...
-def format_typst(
     node: AstNode,
     extension_options: Optional[ExtensionOptions] = None,
     parse_options: Optional[ParseOptions] = None,
