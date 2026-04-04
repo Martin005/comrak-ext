@@ -627,6 +627,36 @@ impl PyNodeAlert {
     }
 }
 
+#[pyclass(name = "NodeBlockDirective", get_all, set_all, eq)]
+#[derive(Clone, PartialEq, Eq)]
+pub struct PyNodeBlockDirective {
+    pub fence_length: usize,
+    pub fence_offset: usize,
+    pub info: String,
+}
+
+impl From<&NodeBlockDirective> for PyNodeBlockDirective {
+    fn from(bd: &NodeBlockDirective) -> Self {
+        Self {
+            fence_length: bd.fence_length,
+            fence_offset: bd.fence_offset,
+            info: bd.info.clone(),
+        }
+    }
+}
+
+#[pymethods]
+impl PyNodeBlockDirective {
+    #[new]
+    pub fn new(fence_length: usize, fence_offset: usize, info: String) -> Self {
+        Self {
+            fence_length,
+            fence_offset,
+            info,
+        }
+    }
+}
+
 #[pyclass(name = "HeexNode", subclass, eq)]
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyHeexNode {}
@@ -1434,6 +1464,20 @@ impl PySubtext {
     }
 }
 
+#[pyclass(name = "BlockDirective", extends=PyNodeValue, get_all, set_all, eq)]
+#[derive(PartialEq, Eq)]
+pub struct PyBlockDirective {
+    pub value: PyNodeBlockDirective,
+}
+
+#[pymethods]
+impl PyBlockDirective {
+    #[new]
+    pub fn new(value: PyNodeBlockDirective) -> (Self, PyNodeValue) {
+        (Self { value }, PyNodeValue::new())
+    }
+}
+
 #[pyclass(name = "AstNode", get_all, set_all)]
 pub struct PyAstNode {
     pub node_value: Py<PyAny>,
@@ -1786,6 +1830,14 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
         comrak::nodes::NodeValue::Subtext => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubtext {}),
+        )
+        .unwrap()
+        .into(),
+        comrak::nodes::NodeValue::BlockDirective(d) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockDirective {
+                value: PyNodeBlockDirective::from(d.as_ref()),
+            }),
         )
         .unwrap()
         .into(),

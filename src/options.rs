@@ -14,7 +14,8 @@ pub struct PyExtensionOptions {
     pub autolink: bool,
     pub tasklist: bool,
     pub superscript: bool,
-    pub header_ids: Option<String>,
+    pub header_id_prefix: Option<String>,
+    pub header_id_prefix_in_href: bool,
     pub footnotes: bool,
     pub inline_footnotes: bool,
     pub description_lists: bool,
@@ -35,6 +36,7 @@ pub struct PyExtensionOptions {
     pub highlight: bool,
     pub insert: bool,
     pub phoenix_heex: bool,
+    pub block_directive: bool,
 }
 
 impl PyExtensionOptions {
@@ -46,7 +48,8 @@ impl PyExtensionOptions {
         opts.autolink = self.autolink;
         opts.tasklist = self.tasklist;
         opts.superscript = self.superscript;
-        opts.header_ids = self.header_ids.clone();
+        opts.header_id_prefix = self.header_id_prefix.clone();
+        opts.header_id_prefix_in_href = self.header_id_prefix_in_href;
         opts.footnotes = self.footnotes;
         opts.inline_footnotes = self.inline_footnotes;
         opts.description_lists = self.description_lists;
@@ -67,6 +70,7 @@ impl PyExtensionOptions {
         opts.highlight = self.highlight;
         opts.insert = self.insert;
         opts.phoenix_heex = self.phoenix_heex;
+        opts.block_directive = self.block_directive;
     }
 }
 
@@ -80,7 +84,8 @@ impl PyExtensionOptions {
         autolink=None,
         tasklist=None,
         superscript=None,
-        header_ids=None,
+        header_id_prefix=None,
+        header_id_prefix_in_href=None,
         footnotes=None,
         inline_footnotes=None,
         description_lists=None,
@@ -101,6 +106,7 @@ impl PyExtensionOptions {
         highlight=None,
         insert=None,
         phoenix_heex=None,
+        block_directive=None,
     ))]
     pub fn new(
         strikethrough: Option<bool>,
@@ -109,7 +115,8 @@ impl PyExtensionOptions {
         autolink: Option<bool>,
         tasklist: Option<bool>,
         superscript: Option<bool>,
-        header_ids: Option<String>,
+        header_id_prefix: Option<String>,
+        header_id_prefix_in_href: Option<bool>,
         footnotes: Option<bool>,
         inline_footnotes: Option<bool>,
         description_lists: Option<bool>,
@@ -130,6 +137,7 @@ impl PyExtensionOptions {
         highlight: Option<bool>,
         insert: Option<bool>,
         phoenix_heex: Option<bool>,
+        block_directive: Option<bool>,
     ) -> Self {
         let defaults = ComrakExtensionOptions::default();
         Self {
@@ -139,7 +147,9 @@ impl PyExtensionOptions {
             autolink: autolink.unwrap_or(defaults.autolink),
             tasklist: tasklist.unwrap_or(defaults.tasklist),
             superscript: superscript.unwrap_or(defaults.superscript),
-            header_ids: header_ids.or(defaults.header_ids.clone()),
+            header_id_prefix: header_id_prefix.or(defaults.header_id_prefix.clone()),
+            header_id_prefix_in_href: header_id_prefix_in_href
+                .unwrap_or(defaults.header_id_prefix_in_href),
             footnotes: footnotes.unwrap_or(defaults.footnotes),
             inline_footnotes: inline_footnotes.unwrap_or(defaults.inline_footnotes),
             description_lists: description_lists.unwrap_or(defaults.description_lists),
@@ -164,6 +174,7 @@ impl PyExtensionOptions {
             highlight: highlight.unwrap_or(defaults.highlight),
             insert: insert.unwrap_or(defaults.insert),
             phoenix_heex: phoenix_heex.unwrap_or(defaults.phoenix_heex),
+            block_directive: block_directive.unwrap_or(defaults.block_directive),
         }
     }
 }
@@ -180,6 +191,7 @@ pub struct PyParseOptions {
     pub ignore_setext: bool,
     pub leave_footnote_definitions: bool,
     pub escaped_char_spans: bool,
+    pub sourcepos_chars: bool,
 }
 
 impl PyParseOptions {
@@ -193,6 +205,7 @@ impl PyParseOptions {
         opts.ignore_setext = self.ignore_setext;
         opts.leave_footnote_definitions = self.leave_footnote_definitions;
         opts.escaped_char_spans = self.escaped_char_spans;
+        opts.sourcepos_chars = self.sourcepos_chars;
     }
 }
 
@@ -207,7 +220,8 @@ impl PyParseOptions {
         relaxed_autolinks=None,
         ignore_setext=None,
         leave_footnote_definitions=None,
-        escaped_char_spans=None
+        escaped_char_spans=None,
+        sourcepos_chars=None,
     ))]
     pub fn new(
         smart: Option<bool>,
@@ -218,6 +232,7 @@ impl PyParseOptions {
         ignore_setext: Option<bool>,
         leave_footnote_definitions: Option<bool>,
         escaped_char_spans: Option<bool>,
+        sourcepos_chars: Option<bool>,
     ) -> Self {
         let defaults = ComrakParseOptions::default();
         Self {
@@ -231,6 +246,7 @@ impl PyParseOptions {
             leave_footnote_definitions: leave_footnote_definitions
                 .unwrap_or(defaults.leave_footnote_definitions),
             escaped_char_spans: escaped_char_spans.unwrap_or(defaults.escaped_char_spans),
+            sourcepos_chars: sourcepos_chars.unwrap_or(defaults.sourcepos_chars),
         }
     }
 }

@@ -94,21 +94,6 @@ markdown_to_html("foo :smile:", extension_options)
 # '<p>foo 😄</p>\n'
 ```
 
-#### `markdown_to_typst`
-
-Render Markdown to Typst:
-
-```python
-from comrak import ExtensionOptions, markdown_to_typst
-extension_options = ExtensionOptions()
-markdown_to_typst("foo :smile:", extension_options)
-# 'Ligature : A merged glyph.\n'
-
-extension_options.description_lists = True
-markdown_to_typst("foo :smile:", extension_options)
-# '#terms(\n  terms.item([Ligature], [A merged glyph.]),\n)\n'
-```
-
 #### `markdown_to_xml`
 
 Render Markdown to XML:
@@ -147,19 +132,6 @@ p = parse_document("> Greentext blockquote requires a space after `>`")
 
 format_html(p)
 # '<blockquote>\n<p>Greentext blockquote requires a space after <code>&gt;</code></p>\n</blockquote>\n'
-```
-
-#### `format_typst`
-
-Format an AST back to Typst:
-
-```python
-from comrak import parse_document, format_typst
-
-p = parse_document("> Greentext blockquote requires a space after `>`")
-
-format_typst(p)
-# '#quote(block: true)[Greentext blockquote requires a space after #raw(">")]\n'
 ```
 
 #### `format_xml`
