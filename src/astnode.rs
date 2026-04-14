@@ -1,8 +1,10 @@
-use comrak::nodes::*;
-use pyo3::{prelude::*, pyclass, IntoPyObjectExt};
+use std::fmt::Display;
 
-#[pyclass(name = "LineColumn", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+use comrak::nodes::*;
+use pyo3::{prelude::*, pyclass, IntoPyObjectExt, Python};
+
+#[pyclass(name = "LineColumn", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyLineColumn {
     pub line: usize,
     pub column: usize,
@@ -17,16 +19,28 @@ impl From<&LineColumn> for PyLineColumn {
     }
 }
 
+impl Display for PyLineColumn {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LineColumn(line={}, column={})", self.line, self.column)
+    }
+}
+
 #[pymethods]
 impl PyLineColumn {
     #[new]
     pub fn new(line: usize, column: usize) -> Self {
         Self { line, column }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "LineColumn(line={}, column={})",
+            self.line, self.column
+        ))
+    }
 }
 
-#[pyclass(name = "Sourcepos", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "Sourcepos", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PySourcepos {
     pub start: PyLineColumn,
     pub end: PyLineColumn,
@@ -41,16 +55,25 @@ impl From<&Sourcepos> for PySourcepos {
     }
 }
 
+impl Display for PySourcepos {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Sourcepos(start={}, end={})", self.start, self.end)
+    }
+}
+
 #[pymethods]
 impl PySourcepos {
     #[new]
     pub fn new(start: PyLineColumn, end: PyLineColumn) -> Self {
         Self { start, end }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Sourcepos(start={}, end={})", self.start, self.end))
+    }
 }
 
-#[pyclass(name = "NodeCode", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeCode", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeCode {
     pub num_backticks: usize,
     pub literal: String,
@@ -65,6 +88,16 @@ impl From<&NodeCode> for PyNodeCode {
     }
 }
 
+impl Display for PyNodeCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeCode(num_backticks={}, literal={})",
+            self.num_backticks, self.literal
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeCode {
     #[new]
@@ -74,10 +107,16 @@ impl PyNodeCode {
             literal,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeCode(num_backticks={}, literal={})",
+            self.num_backticks, self.literal
+        ))
+    }
 }
 
-#[pyclass(name = "NodeHtmlBlock", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeHtmlBlock", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeHtmlBlock {
     pub block_type: u8,
     pub literal: String,
@@ -92,6 +131,16 @@ impl From<&NodeHtmlBlock> for PyNodeHtmlBlock {
     }
 }
 
+impl Display for PyNodeHtmlBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeHtmlBlock(block_type={}, literal={})",
+            self.block_type, self.literal
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeHtmlBlock {
     #[new]
@@ -101,13 +150,25 @@ impl PyNodeHtmlBlock {
             literal,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeHtmlBlock(block_type={}, literal={})",
+            self.block_type, self.literal
+        ))
+    }
 }
 
-#[pyclass(name = "ListDelimType", eq, eq_int)]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[pyclass(name = "ListDelimType", eq, eq_int, str)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyListDelimType {
     Period,
     Paren,
+}
+
+impl Display for PyListDelimType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ListDelimType::{:?}", self)
+    }
 }
 
 impl From<ListDelimType> for PyListDelimType {
@@ -119,11 +180,17 @@ impl From<ListDelimType> for PyListDelimType {
     }
 }
 
-#[pyclass(name = "ListType", eq, eq_int)]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[pyclass(name = "ListType", eq, eq_int, str)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyListType {
     Bullet,
     Ordered,
+}
+
+impl Display for PyListType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ListType::{:?}", self)
+    }
 }
 
 impl From<ListType> for PyListType {
@@ -135,14 +202,20 @@ impl From<ListType> for PyListType {
     }
 }
 
-#[pyclass(name = "TableAlignment", eq, eq_int)]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[pyclass(name = "TableAlignment", eq, eq_int, str)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyTableAlignment {
     #[pyo3(name = "None_")] // named 'None_' because 'None' is reserved in Python
     None,
     Left,
     Center,
     Right,
+}
+
+impl Display for PyTableAlignment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TableAlignment::{:?}", self)
+    }
 }
 
 impl From<TableAlignment> for PyTableAlignment {
@@ -156,8 +229,8 @@ impl From<TableAlignment> for PyTableAlignment {
     }
 }
 
-#[pyclass(name = "NodeList", get_all, set_all, eq)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[pyclass(name = "NodeList", get_all, set_all, eq, str)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeList {
     pub list_type: PyListType,
     pub marker_offset: usize,
@@ -181,6 +254,16 @@ impl From<&NodeList> for PyNodeList {
             tight: list.tight,
             is_task_list: list.is_task_list,
         }
+    }
+}
+
+impl Display for PyNodeList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeList(list_type={:?}, marker_offset={}, padding={}, start={}, delimiter={:?}, bullet_char={}, tight={}, is_task_list={})",
+            self.list_type, self.marker_offset, self.padding, self.start, self.delimiter, self.bullet_char, self.tight, self.is_task_list
+        )
     }
 }
 
@@ -208,10 +291,16 @@ impl PyNodeList {
             is_task_list,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeList(list_type={:?}, marker_offset={}, padding={}, start={}, delimiter={:?}, bullet_char={}, tight={}, is_task_list={})",
+            self.list_type, self.marker_offset, self.padding, self.start, self.delimiter, self.bullet_char, self.tight, self.is_task_list
+        ))
+    }
 }
 
-#[pyclass(name = "NodeDescriptionItem", get_all, set_all, eq)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[pyclass(name = "NodeDescriptionItem", get_all, set_all, eq, str)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeDescriptionItem {
     pub marker_offset: usize,
     pub padding: usize,
@@ -228,6 +317,16 @@ impl From<&NodeDescriptionItem> for PyNodeDescriptionItem {
     }
 }
 
+impl Display for PyNodeDescriptionItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeDescriptionItem(marker_offset={}, padding={}, tight={})",
+            self.marker_offset, self.padding, self.tight
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeDescriptionItem {
     #[new]
@@ -238,10 +337,16 @@ impl PyNodeDescriptionItem {
             tight,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeDescriptionItem(marker_offset={}, padding={}, tight={})",
+            self.marker_offset, self.padding, self.tight
+        ))
+    }
 }
 
-#[pyclass(name = "NodeCodeBlock", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeCodeBlock", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeCodeBlock {
     pub fenced: bool,
     pub fence_char: u8,
@@ -263,6 +368,16 @@ impl From<&NodeCodeBlock> for PyNodeCodeBlock {
             fence_offset: cb.fence_offset,
             closed: cb.closed,
         }
+    }
+}
+
+impl Display for PyNodeCodeBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeCodeBlock(fenced={}, fence_char={}, fence_length={}, fence_offset={}, info={}, literal={}, closed={})",
+            self.fenced, self.fence_char, self.fence_length, self.fence_offset, self.info, self.literal, self.closed
+        )
     }
 }
 
@@ -288,10 +403,16 @@ impl PyNodeCodeBlock {
             closed,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeCodeBlock(fenced={}, fence_char={}, fence_length={}, fence_offset={}, info={}, literal={}, closed={})",
+            self.fenced, self.fence_char, self.fence_length, self.fence_offset, self.info, self.literal, self.closed
+        ))
+    }
 }
 
-#[pyclass(name = "NodeHeading", get_all, set_all, eq)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[pyclass(name = "NodeHeading", get_all, set_all, eq, str)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeHeading {
     pub level: u8,
     pub setext: bool,
@@ -308,6 +429,16 @@ impl From<&NodeHeading> for PyNodeHeading {
     }
 }
 
+impl Display for PyNodeHeading {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeHeading(level={}, setext={}, closed={})",
+            self.level, self.setext, self.closed
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeHeading {
     #[new]
@@ -318,10 +449,16 @@ impl PyNodeHeading {
             closed,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeHeading(level={}, setext={}, closed={})",
+            self.level, self.setext, self.closed
+        ))
+    }
 }
 
-#[pyclass(name = "NodeTable", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeTable", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeTable {
     pub alignments: Vec<PyTableAlignment>,
     pub num_columns: usize,
@@ -344,6 +481,16 @@ impl From<&NodeTable> for PyNodeTable {
     }
 }
 
+impl Display for PyNodeTable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeTable(alignments={:?}, num_columns={}, num_rows={}, num_nonempty_cells={})",
+            self.alignments, self.num_columns, self.num_rows, self.num_nonempty_cells
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeTable {
     #[new]
@@ -360,10 +507,16 @@ impl PyNodeTable {
             num_nonempty_cells,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeTable(alignments={:?}, num_columns={}, num_rows={}, num_nonempty_cells={})",
+            self.alignments, self.num_columns, self.num_rows, self.num_nonempty_cells
+        ))
+    }
 }
 
-#[pyclass(name = "NodeTaskItem", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeTaskItem", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeTaskItem {
     pub symbol: Option<char>,
     pub symbol_sourcepos: PySourcepos,
@@ -378,8 +531,35 @@ impl From<&NodeTaskItem> for PyNodeTaskItem {
     }
 }
 
-#[pyclass(name = "NodeLink", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+impl Display for PyNodeTaskItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeTaskItem(symbol={:?}, symbol_sourcepos={:?})",
+            self.symbol, self.symbol_sourcepos
+        )
+    }
+}
+
+#[pymethods]
+impl PyNodeTaskItem {
+    #[new]
+    pub fn new(symbol: Option<char>, symbol_sourcepos: PySourcepos) -> Self {
+        Self {
+            symbol,
+            symbol_sourcepos,
+        }
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeTaskItem(symbol={:?}, symbol_sourcepos={:?})",
+            self.symbol, self.symbol_sourcepos
+        ))
+    }
+}
+
+#[pyclass(name = "NodeLink", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeLink {
     pub url: String,
     pub title: String,
@@ -394,16 +574,25 @@ impl From<&NodeLink> for PyNodeLink {
     }
 }
 
+impl Display for PyNodeLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeLink(url={}, title={})", self.url, self.title)
+    }
+}
+
 #[pymethods]
 impl PyNodeLink {
     #[new]
     pub fn new(url: String, title: String) -> Self {
         Self { url, title }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("NodeLink(url={}, title={})", self.url, self.title))
+    }
 }
 
-#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeFootnoteDefinition {
     pub name: String,
     pub total_references: u32,
@@ -418,6 +607,16 @@ impl From<&NodeFootnoteDefinition> for PyNodeFootnoteDefinition {
     }
 }
 
+impl Display for PyNodeFootnoteDefinition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeFootnoteDefinition(name={}, total_references={})",
+            self.name, self.total_references
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeFootnoteDefinition {
     #[new]
@@ -427,10 +626,16 @@ impl PyNodeFootnoteDefinition {
             total_references,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeFootnoteDefinition(name={}, total_references={})",
+            self.name, self.total_references
+        ))
+    }
 }
 
-#[pyclass(name = "NodeFootnoteReference", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeFootnoteReference", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeFootnoteReference {
     pub name: String,
     pub texts: Vec<(String, usize)>,
@@ -449,6 +654,16 @@ impl From<&NodeFootnoteReference> for PyNodeFootnoteReference {
     }
 }
 
+impl Display for PyNodeFootnoteReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeFootnoteReference(name={}, texts={:?}, ref_num={}, ix={})",
+            self.name, self.texts, self.ref_num, self.ix
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeFootnoteReference {
     #[new]
@@ -460,10 +675,16 @@ impl PyNodeFootnoteReference {
             ix,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeFootnoteReference(name={}, texts={:?}, ref_num={}, ix={})",
+            self.name, self.texts, self.ref_num, self.ix
+        ))
+    }
 }
 
-#[pyclass(name = "NodeWikiLink", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeWikiLink", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeWikiLink {
     pub url: String,
 }
@@ -474,16 +695,25 @@ impl From<&NodeWikiLink> for PyNodeWikiLink {
     }
 }
 
+impl Display for PyNodeWikiLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeWikiLink(url={})", self.url)
+    }
+}
+
 #[pymethods]
 impl PyNodeWikiLink {
     #[new]
     pub fn new(url: String) -> Self {
         Self { url }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("NodeWikiLink(url={})", self.url))
+    }
 }
 
-#[pyclass(name = "NodeShortCode", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeShortCode", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeShortCode {
     pub code: String,
     pub emoji: String,
@@ -498,16 +728,28 @@ impl From<&NodeShortCode> for PyNodeShortCode {
     }
 }
 
+impl Display for PyNodeShortCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeShortCode(code={}, emoji={})", self.code, self.emoji)
+    }
+}
+
 #[pymethods]
 impl PyNodeShortCode {
     #[new]
     pub fn new(code: String, emoji: String) -> Self {
         Self { code, emoji }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeShortCode(code={}, emoji={})",
+            self.code, self.emoji
+        ))
+    }
 }
 
-#[pyclass(name = "NodeMath", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeMath", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeMath {
     pub dollar_math: bool,
     pub display_math: bool,
@@ -524,6 +766,16 @@ impl From<&NodeMath> for PyNodeMath {
     }
 }
 
+impl Display for PyNodeMath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeMath(dollar_math={}, display_math={}, literal={})",
+            self.dollar_math, self.display_math, self.literal
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeMath {
     #[new]
@@ -534,10 +786,16 @@ impl PyNodeMath {
             literal,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeMath(dollar_math={}, display_math={}, literal={})",
+            self.dollar_math, self.display_math, self.literal
+        ))
+    }
 }
 
-#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all, eq)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all, eq, str)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeMultilineBlockQuote {
     pub fence_length: usize,
     pub fence_offset: usize,
@@ -552,6 +810,16 @@ impl From<&NodeMultilineBlockQuote> for PyNodeMultilineBlockQuote {
     }
 }
 
+impl Display for PyNodeMultilineBlockQuote {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeMultilineBlockQuote(fence_length={}, fence_offset={})",
+            self.fence_length, self.fence_offset
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeMultilineBlockQuote {
     #[new]
@@ -561,16 +829,28 @@ impl PyNodeMultilineBlockQuote {
             fence_offset,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeMultilineBlockQuote(fence_length={}, fence_offset={})",
+            self.fence_length, self.fence_offset
+        ))
+    }
 }
 
-#[pyclass(name = "AlertType", eq, eq_int)]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[pyclass(name = "AlertType", eq, eq_int, str)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyAlertType {
     Note,
     Tip,
     Important,
     Warning,
     Caution,
+}
+
+impl Display for PyAlertType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "AlertType::{:?}", self)
+    }
 }
 
 impl From<AlertType> for PyAlertType {
@@ -585,8 +865,8 @@ impl From<AlertType> for PyAlertType {
     }
 }
 
-#[pyclass(name = "NodeAlert", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeAlert", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeAlert {
     pub alert_type: PyAlertType,
     pub title: Option<String>,
@@ -604,6 +884,16 @@ impl From<&NodeAlert> for PyNodeAlert {
             fence_length: a.fence_length,
             fence_offset: a.fence_offset,
         }
+    }
+}
+
+impl Display for PyNodeAlert {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeAlert(alert_type={:?}, title={:?}, multiline={}, fence_length={}, fence_offset={})",
+            self.alert_type, self.title, self.multiline, self.fence_length, self.fence_offset
+        )
     }
 }
 
@@ -625,10 +915,16 @@ impl PyNodeAlert {
             fence_offset,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeAlert(alert_type={:?}, title={:?}, multiline={}, fence_length={}, fence_offset={})",
+            self.alert_type, self.title, self.multiline, self.fence_length, self.fence_offset
+        ))
+    }
 }
 
-#[pyclass(name = "NodeBlockDirective", get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "NodeBlockDirective", get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeBlockDirective {
     pub fence_length: usize,
     pub fence_offset: usize,
@@ -645,6 +941,16 @@ impl From<&NodeBlockDirective> for PyNodeBlockDirective {
     }
 }
 
+impl Display for PyNodeBlockDirective {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeBlockDirective(fence_length={}, fence_offset={}, info={})",
+            self.fence_length, self.fence_offset, self.info
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeBlockDirective {
     #[new]
@@ -655,11 +961,23 @@ impl PyNodeBlockDirective {
             info,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeBlockDirective(fence_length={}, fence_offset={}, info={})",
+            self.fence_length, self.fence_offset, self.info
+        ))
+    }
 }
 
-#[pyclass(name = "HeexNode", subclass, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "HeexNode", subclass, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNode {}
+
+impl Display for PyHeexNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNode()")
+    }
+}
 
 #[pymethods]
 impl PyHeexNode {
@@ -667,17 +985,18 @@ impl PyHeexNode {
     pub fn new() -> Self {
         Self {}
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("HeexNode()".to_string())
+    }
 }
 
-#[pyclass(name = "HeexNodeDirective", extends=PyHeexNode, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pyclass(name = "HeexNodeDirective", extends=PyHeexNode, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeDirective {}
 
-#[pymethods]
-impl PyHeexNodeDirective {
-    #[new]
-    pub fn new() -> (Self, PyHeexNode) {
-        (Self {}, PyHeexNode::new())
+impl Display for PyHeexNodeDirective {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNodeDirective()")
     }
 }
 
@@ -692,15 +1011,24 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeDirective {
     }
 }
 
-#[pyclass(name = "HeexNodeComment", extends=PyHeexNode, eq)]
-#[derive(Clone, PartialEq, Eq)]
-pub struct PyHeexNodeComment {}
-
 #[pymethods]
-impl PyHeexNodeComment {
+impl PyHeexNodeDirective {
     #[new]
     pub fn new() -> (Self, PyHeexNode) {
         (Self {}, PyHeexNode::new())
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("HeexNodeDirective()".to_string())
+    }
+}
+
+#[pyclass(name = "HeexNodeComment", extends=PyHeexNode, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyHeexNodeComment {}
+
+impl Display for PyHeexNodeComment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNodeComment()")
     }
 }
 
@@ -715,15 +1043,24 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeComment {
     }
 }
 
-#[pyclass(name = "HeexNodeMultilineComment", extends=PyHeexNode, eq)]
-#[derive(Clone, PartialEq, Eq)]
-pub struct PyHeexNodeMultilineComment {}
-
 #[pymethods]
-impl PyHeexNodeMultilineComment {
+impl PyHeexNodeComment {
     #[new]
     pub fn new() -> (Self, PyHeexNode) {
         (Self {}, PyHeexNode::new())
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("HeexNodeComment()".to_string())
+    }
+}
+
+#[pyclass(name = "HeexNodeMultilineComment", extends=PyHeexNode, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyHeexNodeMultilineComment {}
+
+impl Display for PyHeexNodeMultilineComment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNodeMultilineComment()")
     }
 }
 
@@ -738,15 +1075,24 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeMultilineComment {
     }
 }
 
-#[pyclass(name = "HeexNodeExpression", extends=PyHeexNode, eq)]
-#[derive(Clone, PartialEq, Eq)]
-pub struct PyHeexNodeExpression {}
-
 #[pymethods]
-impl PyHeexNodeExpression {
+impl PyHeexNodeMultilineComment {
     #[new]
     pub fn new() -> (Self, PyHeexNode) {
         (Self {}, PyHeexNode::new())
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("HeexNodeMultilineComment()".to_string())
+    }
+}
+
+#[pyclass(name = "HeexNodeExpression", extends=PyHeexNode, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyHeexNodeExpression {}
+
+impl Display for PyHeexNodeExpression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNodeExpression()")
     }
 }
 
@@ -761,10 +1107,27 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeExpression {
     }
 }
 
-#[pyclass(name = "HeexNodeTag", extends=PyHeexNode, get_all, set_all, eq)]
-#[derive(Clone, PartialEq, Eq)]
+#[pymethods]
+impl PyHeexNodeExpression {
+    #[new]
+    pub fn new() -> (Self, PyHeexNode) {
+        (Self {}, PyHeexNode::new())
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("HeexNodeExpression()".to_string())
+    }
+}
+
+#[pyclass(name = "HeexNodeTag", extends=PyHeexNode, get_all, set_all, eq, str)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeTag {
     pub tag: String,
+}
+
+impl Display for PyHeexNodeTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexNodeTag(tag={})", self.tag)
+    }
 }
 
 impl<'py> IntoPyObject<'py> for PyHeexNodeTag {
@@ -784,9 +1147,13 @@ impl PyHeexNodeTag {
     pub fn new(tag: String) -> (Self, PyHeexNode) {
         (Self { tag }, PyHeexNode::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("HeexNodeTag(tag={})", self.tag))
+    }
 }
 
-#[pyclass(name = "NodeHeexBlock", get_all, set_all, eq)]
+#[pyclass(name = "NodeHeexBlock", get_all, set_all, eq, str)]
+#[derive(Debug)]
 pub struct PyNodeHeexBlock {
     pub literal: String,
     pub node: Py<PyAny>, // PyHeexNode subclass
@@ -826,17 +1193,39 @@ impl From<(Python<'_>, &NodeHeexBlock)> for PyNodeHeexBlock {
     }
 }
 
+impl Display for PyNodeHeexBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeHeexBlock(literal={}, node={:?})",
+            self.literal, self.node
+        )
+    }
+}
+
 #[pymethods]
 impl PyNodeHeexBlock {
     #[new]
     pub fn new(literal: String, node: Py<PyAny>) -> Self {
         Self { literal, node }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeHeexBlock(literal={}, node={:?})",
+            self.literal, self.node
+        ))
+    }
 }
 
-#[pyclass(name = "NodeValue", subclass, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "NodeValue", subclass, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyNodeValue {}
+
+impl Display for PyNodeValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeValue()")
+    }
+}
 
 #[pymethods]
 impl PyNodeValue {
@@ -844,11 +1233,20 @@ impl PyNodeValue {
     pub fn new() -> Self {
         Self {}
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("NodeValue()".to_string())
+    }
 }
 
-#[pyclass(name = "Document", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Document", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyDocument {}
+
+impl Display for PyDocument {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Document()")
+    }
+}
 
 #[pymethods]
 impl PyDocument {
@@ -856,12 +1254,21 @@ impl PyDocument {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Document()".to_string())
+    }
 }
 
-#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "FrontMatter", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyFrontMatter {
     pub value: String,
+}
+
+impl Display for PyFrontMatter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "FrontMatter(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -870,11 +1277,20 @@ impl PyFrontMatter {
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("FrontMatter(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "BlockQuote", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "BlockQuote", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyBlockQuote {}
+
+impl Display for PyBlockQuote {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "BlockQuote()")
+    }
+}
 
 #[pymethods]
 impl PyBlockQuote {
@@ -882,12 +1298,21 @@ impl PyBlockQuote {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("BlockQuote()".to_string())
+    }
 }
 
-#[pyclass(name = "List", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "List", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyList {
     pub value: PyNodeList,
+}
+
+impl Display for PyList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "List(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -896,12 +1321,21 @@ impl PyList {
     pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("List(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Item", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Item", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyItem {
     pub value: PyNodeList,
+}
+
+impl Display for PyItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Item(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -910,11 +1344,20 @@ impl PyItem {
     pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Item(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "DescriptionList", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "DescriptionList", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyDescriptionList {}
+
+impl Display for PyDescriptionList {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DescriptionList()")
+    }
+}
 
 #[pymethods]
 impl PyDescriptionList {
@@ -922,12 +1365,21 @@ impl PyDescriptionList {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("DescriptionList()".to_string())
+    }
 }
 
-#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "DescriptionItem", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyDescriptionItem {
     pub value: PyNodeDescriptionItem,
+}
+
+impl Display for PyDescriptionItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DescriptionItem(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -936,11 +1388,20 @@ impl PyDescriptionItem {
     pub fn new(value: PyNodeDescriptionItem) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("DescriptionItem(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "DescriptionTerm", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "DescriptionTerm", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyDescriptionTerm {}
+
+impl Display for PyDescriptionTerm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DescriptionTerm()")
+    }
+}
 
 #[pymethods]
 impl PyDescriptionTerm {
@@ -948,11 +1409,20 @@ impl PyDescriptionTerm {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("DescriptionTerm()".to_string())
+    }
 }
 
-#[pyclass(name = "DescriptionDetails", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "DescriptionDetails", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyDescriptionDetails {}
+
+impl Display for PyDescriptionDetails {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DescriptionDetails()")
+    }
+}
 
 #[pymethods]
 impl PyDescriptionDetails {
@@ -960,12 +1430,21 @@ impl PyDescriptionDetails {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("DescriptionDetails()".to_string())
+    }
 }
 
-#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "CodeBlock", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyCodeBlock {
     pub value: PyNodeCodeBlock,
+}
+
+impl Display for PyCodeBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CodeBlock(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -974,12 +1453,21 @@ impl PyCodeBlock {
     pub fn new(value: PyNodeCodeBlock) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("CodeBlock(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "HtmlBlock", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHtmlBlock {
     pub value: PyNodeHtmlBlock,
+}
+
+impl Display for PyHtmlBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HtmlBlock(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -988,12 +1476,21 @@ impl PyHtmlBlock {
     pub fn new(value: PyNodeHtmlBlock) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("HtmlBlock(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "HeexBlock", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "HeexBlock", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHeexBlock {
     pub value: PyNodeHeexBlock,
+}
+
+impl Display for PyHeexBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexBlock(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1002,11 +1499,20 @@ impl PyHeexBlock {
     pub fn new(value: PyNodeHeexBlock) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("HeexBlock(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Paragraph", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Paragraph", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyParagraph {}
+
+impl Display for PyParagraph {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Paragraph()")
+    }
+}
 
 #[pymethods]
 impl PyParagraph {
@@ -1014,12 +1520,21 @@ impl PyParagraph {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Paragraph()".to_string())
+    }
 }
 
-#[pyclass(name = "Heading", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Heading", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHeading {
     pub value: PyNodeHeading,
+}
+
+impl Display for PyHeading {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Heading(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1028,11 +1543,20 @@ impl PyHeading {
     pub fn new(value: PyNodeHeading) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Heading(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "ThematicBreak", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "ThematicBreak", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyThematicBreak {}
+
+impl Display for PyThematicBreak {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ThematicBreak()")
+    }
+}
 
 #[pymethods]
 impl PyThematicBreak {
@@ -1040,12 +1564,21 @@ impl PyThematicBreak {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("ThematicBreak()".to_string())
+    }
 }
 
-#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "FootnoteDefinition", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyFootnoteDefinition {
     pub value: PyNodeFootnoteDefinition,
+}
+
+impl Display for PyFootnoteDefinition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "FootnoteDefinition(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1054,12 +1587,21 @@ impl PyFootnoteDefinition {
     pub fn new(value: PyNodeFootnoteDefinition) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("FootnoteDefinition(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Table", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Table", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyTable {
     pub value: PyNodeTable,
+}
+
+impl Display for PyTable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Table(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1068,12 +1610,21 @@ impl PyTable {
     pub fn new(value: PyNodeTable) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Table(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "TableRow", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "TableRow", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyTableRow {
     pub value: bool,
+}
+
+impl Display for PyTableRow {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TableRow(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1082,11 +1633,20 @@ impl PyTableRow {
     pub fn new(value: bool) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("TableRow(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "TableCell", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "TableCell", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyTableCell {}
+
+impl Display for PyTableCell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TableCell()")
+    }
+}
 
 #[pymethods]
 impl PyTableCell {
@@ -1094,27 +1654,44 @@ impl PyTableCell {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("TableCell()".to_string())
+    }
 }
 
-#[pyclass(name = "Text", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Text", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyText {
     pub value: String,
+}
+
+impl Display for PyText {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Text(value={})", self.value)
+    }
 }
 
 #[pymethods]
 impl PyText {
     #[new]
-
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Text(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "TaskItem", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyTaskItem {
     pub value: PyNodeTaskItem,
+}
+
+impl Display for PyTaskItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TaskItem(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1123,11 +1700,20 @@ impl PyTaskItem {
     pub fn new(value: PyNodeTaskItem) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("TaskItem(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "SoftBreak", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "SoftBreak", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PySoftBreak {}
+
+impl Display for PySoftBreak {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SoftBreak()")
+    }
+}
 
 #[pymethods]
 impl PySoftBreak {
@@ -1135,11 +1721,20 @@ impl PySoftBreak {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("SoftBreak()".to_string())
+    }
 }
 
-#[pyclass(name = "LineBreak", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "LineBreak", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyLineBreak {}
+
+impl Display for PyLineBreak {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LineBreak()")
+    }
+}
 
 #[pymethods]
 impl PyLineBreak {
@@ -1147,12 +1742,21 @@ impl PyLineBreak {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("LineBreak()".to_string())
+    }
 }
 
-#[pyclass(name = "Code", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Code", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyCode {
     pub value: PyNodeCode,
+}
+
+impl Display for PyCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Code(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1161,12 +1765,21 @@ impl PyCode {
     pub fn new(value: PyNodeCode) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Code(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "HtmlInline", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHtmlInline {
     pub value: String,
+}
+
+impl Display for PyHtmlInline {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HtmlInline(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1175,12 +1788,21 @@ impl PyHtmlInline {
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("HtmlInline(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "HeexInline", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "HeexInline", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHeexInline {
     pub value: String,
+}
+
+impl Display for PyHeexInline {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "HeexInline(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1189,12 +1811,21 @@ impl PyHeexInline {
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("HeexInline(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Raw", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyRaw {
     pub value: String,
+}
+
+impl Display for PyRaw {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Raw(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1203,11 +1834,20 @@ impl PyRaw {
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Raw(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "Emph", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Emph", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyEmph {}
+
+impl Display for PyEmph {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Emph()")
+    }
+}
 
 #[pymethods]
 impl PyEmph {
@@ -1215,11 +1855,20 @@ impl PyEmph {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Emph()".to_string())
+    }
 }
 
-#[pyclass(name = "Strong", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Strong", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyStrong {}
+
+impl Display for PyStrong {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Strong()")
+    }
+}
 
 #[pymethods]
 impl PyStrong {
@@ -1227,11 +1876,20 @@ impl PyStrong {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Strong()".to_string())
+    }
 }
 
-#[pyclass(name = "Strikethrough", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Strikethrough", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyStrikethrough {}
+
+impl Display for PyStrikethrough {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Strikethrough()")
+    }
+}
 
 #[pymethods]
 impl PyStrikethrough {
@@ -1239,11 +1897,20 @@ impl PyStrikethrough {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Strikethrough()".to_string())
+    }
 }
 
-#[pyclass(name = "Highlight", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Highlight", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyHighlight {}
+
+impl Display for PyHighlight {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Highlight()")
+    }
+}
 
 #[pymethods]
 impl PyHighlight {
@@ -1251,11 +1918,20 @@ impl PyHighlight {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Highlight()".to_string())
+    }
 }
 
-#[pyclass(name = "Insert", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Insert", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyInsert {}
+
+impl Display for PyInsert {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Insert()")
+    }
+}
 
 #[pymethods]
 impl PyInsert {
@@ -1263,11 +1939,20 @@ impl PyInsert {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Insert()".to_string())
+    }
 }
 
-#[pyclass(name = "Superscript", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Superscript", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PySuperscript {}
+
+impl Display for PySuperscript {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Superscript()")
+    }
+}
 
 #[pymethods]
 impl PySuperscript {
@@ -1275,12 +1960,21 @@ impl PySuperscript {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Superscript()".to_string())
+    }
 }
 
-#[pyclass(name = "Link", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Link", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyLink {
     pub value: PyNodeLink,
+}
+
+impl Display for PyLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Link(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1289,12 +1983,21 @@ impl PyLink {
     pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Link(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Image", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Image", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyImage {
     pub value: PyNodeLink,
+}
+
+impl Display for PyImage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Image(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1303,12 +2006,21 @@ impl PyImage {
     pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Image(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "FootnoteReference", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyFootnoteReference {
     pub value: PyNodeFootnoteReference,
+}
+
+impl Display for PyFootnoteReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "FootnoteReference(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1317,12 +2029,21 @@ impl PyFootnoteReference {
     pub fn new(value: PyNodeFootnoteReference) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("FootnoteReference(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "ShortCode", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyShortCode {
     pub value: PyNodeShortCode,
+}
+
+impl Display for PyShortCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ShortCode(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1331,12 +2052,21 @@ impl PyShortCode {
     pub fn new(value: PyNodeShortCode) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("ShortCode(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Math", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Math", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyMath {
     pub value: PyNodeMath,
+}
+
+impl Display for PyMath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Math(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1345,12 +2075,21 @@ impl PyMath {
     pub fn new(value: PyNodeMath) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Math(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyMultilineBlockQuote {
     pub value: PyNodeMultilineBlockQuote,
+}
+
+impl Display for PyMultilineBlockQuote {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "MultilineBlockQuote(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1359,11 +2098,20 @@ impl PyMultilineBlockQuote {
     pub fn new(value: PyNodeMultilineBlockQuote) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("MultilineBlockQuote(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Escaped", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Escaped", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyEscaped {}
+
+impl Display for PyEscaped {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Escaped()")
+    }
+}
 
 #[pymethods]
 impl PyEscaped {
@@ -1371,12 +2119,21 @@ impl PyEscaped {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Escaped()".to_string())
+    }
 }
 
-#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "WikiLink", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyWikiLink {
     pub value: PyNodeWikiLink,
+}
+
+impl Display for PyWikiLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "WikiLink(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1385,11 +2142,20 @@ impl PyWikiLink {
     pub fn new(value: PyNodeWikiLink) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("WikiLink(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Underline", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Underline", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyUnderline {}
+
+impl Display for PyUnderline {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Underline()")
+    }
+}
 
 #[pymethods]
 impl PyUnderline {
@@ -1397,11 +2163,20 @@ impl PyUnderline {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Underline()".to_string())
+    }
 }
 
-#[pyclass(name = "Subscript", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Subscript", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PySubscript {}
+
+impl Display for PySubscript {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Subscript()")
+    }
+}
 
 #[pymethods]
 impl PySubscript {
@@ -1409,11 +2184,20 @@ impl PySubscript {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Subscript()".to_string())
+    }
 }
 
-#[pyclass(name = "SpoileredText", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "SpoileredText", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PySpoileredText {}
+
+impl Display for PySpoileredText {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SpoileredText()")
+    }
+}
 
 #[pymethods]
 impl PySpoileredText {
@@ -1421,12 +2205,21 @@ impl PySpoileredText {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("SpoileredText()".to_string())
+    }
 }
 
-#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "EscapedTag", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyEscapedTag {
     pub value: String,
+}
+
+impl Display for PyEscapedTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "EscapedTag(value={})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1435,12 +2228,21 @@ impl PyEscapedTag {
     pub fn new(value: String) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("EscapedTag(value={})", self.value))
+    }
 }
 
-#[pyclass(name = "Alert", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Alert", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 pub struct PyAlert {
     pub value: PyNodeAlert,
+}
+
+impl Display for PyAlert {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Alert(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1449,12 +2251,21 @@ impl PyAlert {
     pub fn new(value: PyNodeAlert) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Alert(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "Subtext", extends=PyNodeValue, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "Subtext", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
 
 pub struct PySubtext {}
+
+impl Display for PySubtext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Subtext()")
+    }
+}
 
 #[pymethods]
 impl PySubtext {
@@ -1462,12 +2273,21 @@ impl PySubtext {
     pub fn new() -> (Self, PyNodeValue) {
         (Self {}, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("Subtext()".to_string())
+    }
 }
 
-#[pyclass(name = "BlockDirective", extends=PyNodeValue, get_all, set_all, eq)]
-#[derive(PartialEq, Eq)]
+#[pyclass(name = "BlockDirective", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct PyBlockDirective {
     pub value: PyNodeBlockDirective,
+}
+
+impl Display for PyBlockDirective {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "BlockDirective(value={:?})", self.value)
+    }
 }
 
 #[pymethods]
@@ -1476,21 +2296,74 @@ impl PyBlockDirective {
     pub fn new(value: PyNodeBlockDirective) -> (Self, PyNodeValue) {
         (Self { value }, PyNodeValue::new())
     }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("BlockDirective(value={:?})", self.value))
+    }
 }
 
-#[pyclass(name = "AstNode", get_all, set_all)]
+#[pyclass(name = "AstNode", get_all, set_all, str)]
+#[derive(Debug)]
 pub struct PyAstNode {
-    pub node_value: Py<PyAny>,
+    pub node_value: Py<PyNodeValue>,
     pub sourcepos: PySourcepos,
     pub parent: Option<Py<PyAstNode>>,
     pub children: Vec<Py<PyAstNode>>,
+}
+
+impl Display for PyAstNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = Python::attach(|py| {
+            let node_value_repr = self
+                .node_value
+                .bind(py)
+                .repr()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|_| "?".to_string());
+            let sourcepos_repr = format!("{}", self.sourcepos);
+
+            let parent_repr = match &self.parent {
+                Some(p) => p
+                    .borrow(py)
+                    .node_value
+                    .bind(py)
+                    .repr()
+                    .map(|s| s.to_string())
+                    .unwrap_or_else(|_| "?".to_string()),
+                None => "None".to_string(),
+            };
+
+            let children_repr: Vec<String> = self
+                .children
+                .iter()
+                .map(|child| {
+                    child
+                        .borrow(py)
+                        .node_value
+                        .bind(py)
+                        .repr()
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|_| "?".to_string())
+                })
+                .collect();
+
+            format!(
+                "AstNode(node_value={}, sourcepos={}, parent={}, children=[{}])",
+                node_value_repr,
+                sourcepos_repr,
+                parent_repr,
+                children_repr.join(", ")
+            )
+        });
+
+        write!(f, "{}", s)
+    }
 }
 
 #[pymethods]
 impl PyAstNode {
     #[new]
     pub fn new(
-        node_value: Py<PyAny>,
+        node_value: Py<PyNodeValue>,
         sourcepos: PySourcepos,
         parent: Option<Py<PyAstNode>>,
         children: Vec<Py<PyAstNode>>,
@@ -1502,29 +2375,81 @@ impl PyAstNode {
             children,
         }
     }
+    fn __repr__(&self) -> PyResult<String> {
+        let s = Python::attach(|py| {
+            let node_value_repr = self
+                .node_value
+                .bind(py)
+                .repr()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|_| "?".to_string());
+            let sourcepos_repr = format!("{}", self.sourcepos);
+
+            let parent_repr = match &self.parent {
+                Some(p) => p
+                    .borrow(py)
+                    .node_value
+                    .bind(py)
+                    .repr()
+                    .map(|s| s.to_string())
+                    .unwrap_or_else(|_| "?".to_string()),
+                None => "None".to_string(),
+            };
+
+            let children_repr: Vec<String> = self
+                .children
+                .iter()
+                .map(|child| {
+                    child
+                        .borrow(py)
+                        .node_value
+                        .bind(py)
+                        .repr()
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|_| "?".to_string())
+                })
+                .collect();
+
+            format!(
+                "AstNode(node_value={}, sourcepos={}, parent={}, children=[{}])",
+                node_value_repr,
+                sourcepos_repr,
+                parent_repr,
+                children_repr.join(", ")
+            )
+        });
+
+        Ok(s)
+    }
 }
 
-fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAny> {
+fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyNodeValue> {
     match value {
         comrak::nodes::NodeValue::Document => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDocument {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::FrontMatter(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyFrontMatter { value: s.clone() }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::BlockQuote => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockQuote {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::List(l) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyList {
@@ -1532,7 +2457,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Item(i) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyItem {
@@ -1540,13 +2467,17 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::DescriptionList => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionList {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::DescriptionItem(d) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionItem {
@@ -1554,19 +2485,25 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::DescriptionTerm => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionTerm {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::DescriptionDetails => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyDescriptionDetails {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::CodeBlock(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCodeBlock {
@@ -1574,7 +2511,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::HtmlBlock(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHtmlBlock {
@@ -1582,7 +2521,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::HeexBlock(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeexBlock {
@@ -1590,13 +2531,17 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Paragraph => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyParagraph {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Heading(h) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHeading {
@@ -1604,13 +2549,17 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::ThematicBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyThematicBreak {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::FootnoteDefinition(f) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteDefinition {
@@ -1618,7 +2567,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Table(t) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTable {
@@ -1626,19 +2577,25 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::TableRow(is_header) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableRow { value: *is_header }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::TableCell => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTableCell {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Text(t) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyText {
@@ -1646,7 +2603,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::TaskItem(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyTaskItem {
@@ -1654,19 +2613,25 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::SoftBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySoftBreak {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::LineBreak => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLineBreak {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Code(c) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCode {
@@ -1674,63 +2639,83 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::HtmlInline(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyHtmlInline { value: s.clone() }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::HeexInline(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {})
                 .add_subclass(PyHeexInline { value: s.clone() }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Raw(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyRaw { value: s.clone() }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Emph => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEmph {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Strong => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrong {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Strikethrough => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyStrikethrough {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Highlight => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyHighlight {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Insert => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyInsert {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Superscript => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySuperscript {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Link(l) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyLink {
@@ -1738,7 +2723,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Image(i) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyImage {
@@ -1746,7 +2733,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::FootnoteReference(f) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyFootnoteReference {
@@ -1754,7 +2743,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::ShortCode(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyShortCode {
@@ -1762,7 +2753,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Math(m) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMath {
@@ -1770,7 +2763,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::MultilineBlockQuote(m) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMultilineBlockQuote {
@@ -1778,13 +2773,17 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Escaped => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscaped {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::WikiLink(w) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyWikiLink {
@@ -1792,25 +2791,33 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Underline => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyUnderline {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Subscript => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubscript {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::SpoileredText => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySpoileredText {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::EscapedTag(s) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyEscapedTag {
@@ -1818,7 +2825,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Alert(a) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyAlert {
@@ -1826,13 +2835,17 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Subtext => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubtext {}),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::BlockDirective(d) => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PyBlockDirective {
@@ -1840,7 +2853,9 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyAn
             }),
         )
         .unwrap()
-        .into(),
+        .into_bound(py)
+        .into_super()
+        .unbind(),
     }
 }
 
