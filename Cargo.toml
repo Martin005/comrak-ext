@@ -1,6 +1,6 @@
 [dependencies]
 comrak = { version = "0.52.0", features = ["shortcodes", "phoenix_heex"] }
-pyo3 = "0.27.2"
+pyo3 = "0.28.3"
 
 [lib]
 name = "comrak"
