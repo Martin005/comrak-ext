@@ -527,7 +527,7 @@ wheels = [
 
 [[package]]
 name = "pdm-bump"
-version = "0.9.10"
+version = "0.9.12"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
@@ -538,21 +538,21 @@ dependencies = [
     { name = "tomlkit" },
     { name = "typing-extensions", marker = "python_full_version < '3.10'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/49/f7/5580e7601bd7552f7fb33f37b0b77a920b48eb99b733ff10b778ceaa43a2/pdm_bump-0.9.10.tar.gz", hash = "sha256:b30e672c82a7636404a84871a261f2cb4c3553e7e4c3c92defd4f8f036c2fbde", size = 38465, upload-time = "2024-12-28T14:40:24.318Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3a/e8/00a896d3d2f9f70fbbe40c436541984d0185cd325ce72e26c8ea4205b68b/pdm_bump-0.9.12.tar.gz", hash = "sha256:057687574002d82747c9f02a013fc1cab34fcab35502f96af8efe5f6c79b12ca", size = 38437, upload-time = "2025-04-01T18:40:37.5Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/3d/f0266fdf71691f22f19dc1fee3d39b814bcc168cf4e667edcd6b0451137f/pdm_bump-0.9.10-py3-none-any.whl", hash = "sha256:5c4b85b3e667dd3599aca68af0c0d95a0bdf01b4d8899072c17dc18e59fcd43c", size = 40836, upload-time = "2024-12-28T14:40:21.967Z" },
+    { url = "https://files.pythonhosted.org/packages/df/10/b770bcb04360de2de60564a57b733f2d3f703cb7779da65db1d2e662ab85/pdm_bump-0.9.12-py3-none-any.whl", hash = "sha256:a830a0c234284d8eb04b0f5c53dc77b2bdee1329783040fab16edede40abe77c", size = 40796, upload-time = "2025-04-01T18:40:36.059Z" },
 ]
 
 [[package]]
 name = "pdm-pfsc"
-version = "0.12.2"
+version = "0.13.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pdm" },
     { name = "pyproject-metadata" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/fb/2f3e16fa11a01277db77426c910fdeaf7bdf3211c02c6f196aa2ceaedae3/pdm_pfsc-0.12.2-py3-none-any.whl", hash = "sha256:fc1872e325ca61d2d98b98a87a3d22a663d4349493835801a4d3a26f24ff86dc", size = 14294, upload-time = "2024-08-21T16:59:06.389Z" },
+    { url = "https://files.pythonhosted.org/packages/86/a2/dbb8e8673f881e4457c76fd874f02f8bbf3ea50d97fe2a273e54d8de1e9a/pdm_pfsc-0.13.3-py3-none-any.whl", hash = "sha256:5b52ef57b5382f6533de4a7aa73cc02583fa3c12b032513c818627765fb3c26a", size = 14779, upload-time = "2025-05-31T15:33:17.439Z" },
 ]
 
 [[package]]
@@ -600,14 +600,14 @@ wheels = [
 
 [[package]]
 name = "pyproject-metadata"
-version = "0.9.0"
+version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "packaging" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c0/79/406a9f56c435caaaca4a1c66397e4f63ecd48a72a6c4fc1d9ecdaac66acb/pyproject_metadata-0.9.0.tar.gz", hash = "sha256:8511c00a4cad96686af6a6b4143433298beb96105a9379afdc9b0328f4f260c9", size = 32096, upload-time = "2024-10-23T03:36:23.322Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/fa/8bf4fa41adfebd95dce360afe3f5fca243a17932089d3d5486e95ca44c57/pyproject_metadata-0.11.0.tar.gz", hash = "sha256:c72fa49418bb7c5a10f25e050c418009898d1c051721d19f98a6fb6da59a66cf", size = 43799, upload-time = "2026-02-09T19:12:50.578Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/61/9dd3e68d2b6aa40a5fc678662919be3c3a7bf22cba5a6b4437619b77e156/pyproject_metadata-0.9.0-py3-none-any.whl", hash = "sha256:fc862aab066a2e87734333293b0af5845fe8ac6cb69c451a41551001e923be0b", size = 18314, upload-time = "2024-10-23T03:36:20.717Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/0b/da4851b1e2d9c40c9bd74c0abd94510a7d797da9ccde0a90e8953751ed4a/pyproject_metadata-0.11.0-py3-none-any.whl", hash = "sha256:85bbecca8694e2c00f63b492c96921d6c228454057c88e7c352b2077fcaa4096", size = 22040, upload-time = "2026-02-09T19:12:49.184Z" },
 ]
 
 [[package]]
