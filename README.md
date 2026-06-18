@@ -19,7 +19,7 @@ pip install comrak-ext
 
 ### Requirements
 
-- Python 3.10+
+- Python 3.11+
 
 ## Features
 
