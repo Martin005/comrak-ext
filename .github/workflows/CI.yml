@@ -18,9 +18,6 @@ on:
 permissions:
   contents: read
 
-env:
-  PYTHON_VERSIONS: '["3.11", "3.12", "3.13", "3.14"]'
-
 jobs:
   check-commit:
     runs-on: ubuntu-latest
@@ -60,7 +57,7 @@ jobs:
             target: s390x
           - runner: ubuntu-22.04
             target: ppc64le
-        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -93,7 +90,7 @@ jobs:
             target: aarch64
           - runner: ubuntu-22.04
             target: armv7
-        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -122,7 +119,7 @@ jobs:
             target: x64
           - runner: windows-latest
             target: x86
-        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -151,7 +148,7 @@ jobs:
             target: x86_64
           - runner: macos-14
             target: aarch64
-        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
