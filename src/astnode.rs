@@ -3,7 +3,7 @@ use std::fmt::Display;
 use comrak::nodes::*;
 use pyo3::{prelude::*, pyclass, IntoPyObjectExt, Python};
 
-#[pyclass(name = "LineColumn", get_all, set_all, eq, str)]
+#[pyclass(name = "LineColumn", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyLineColumn {
     pub line: usize,
@@ -39,7 +39,7 @@ impl PyLineColumn {
     }
 }
 
-#[pyclass(name = "Sourcepos", get_all, set_all, eq, str)]
+#[pyclass(name = "Sourcepos", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PySourcepos {
     pub start: PyLineColumn,
@@ -72,7 +72,7 @@ impl PySourcepos {
     }
 }
 
-#[pyclass(name = "NodeCode", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeCode", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeCode {
     pub num_backticks: usize,
@@ -115,7 +115,7 @@ impl PyNodeCode {
     }
 }
 
-#[pyclass(name = "NodeHtmlBlock", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeHtmlBlock", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeHtmlBlock {
     pub block_type: u8,
@@ -158,7 +158,7 @@ impl PyNodeHtmlBlock {
     }
 }
 
-#[pyclass(name = "ListDelimType", eq, eq_int, str)]
+#[pyclass(name = "ListDelimType", eq, eq_int, str, from_py_object)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyListDelimType {
     Period,
@@ -180,7 +180,7 @@ impl From<ListDelimType> for PyListDelimType {
     }
 }
 
-#[pyclass(name = "ListType", eq, eq_int, str)]
+#[pyclass(name = "ListType", eq, eq_int, str, from_py_object)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyListType {
     Bullet,
@@ -202,7 +202,7 @@ impl From<ListType> for PyListType {
     }
 }
 
-#[pyclass(name = "TableAlignment", eq, eq_int, str)]
+#[pyclass(name = "TableAlignment", eq, eq_int, str, from_py_object)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyTableAlignment {
     #[pyo3(name = "None_")] // named 'None_' because 'None' is reserved in Python
@@ -229,7 +229,7 @@ impl From<TableAlignment> for PyTableAlignment {
     }
 }
 
-#[pyclass(name = "NodeList", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeList", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeList {
     pub list_type: PyListType,
@@ -299,7 +299,14 @@ impl PyNodeList {
     }
 }
 
-#[pyclass(name = "NodeDescriptionItem", get_all, set_all, eq, str)]
+#[pyclass(
+    name = "NodeDescriptionItem",
+    get_all,
+    set_all,
+    eq,
+    str,
+    from_py_object
+)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeDescriptionItem {
     pub marker_offset: usize,
@@ -345,7 +352,7 @@ impl PyNodeDescriptionItem {
     }
 }
 
-#[pyclass(name = "NodeCodeBlock", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeCodeBlock", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeCodeBlock {
     pub fenced: bool,
@@ -411,7 +418,7 @@ impl PyNodeCodeBlock {
     }
 }
 
-#[pyclass(name = "NodeHeading", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeHeading", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeHeading {
     pub level: u8,
@@ -457,7 +464,7 @@ impl PyNodeHeading {
     }
 }
 
-#[pyclass(name = "NodeTable", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeTable", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeTable {
     pub alignments: Vec<PyTableAlignment>,
@@ -515,7 +522,7 @@ impl PyNodeTable {
     }
 }
 
-#[pyclass(name = "NodeTaskItem", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeTaskItem", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeTaskItem {
     pub symbol: Option<char>,
@@ -558,7 +565,7 @@ impl PyNodeTaskItem {
     }
 }
 
-#[pyclass(name = "NodeLink", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeLink", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeLink {
     pub url: String,
@@ -591,7 +598,14 @@ impl PyNodeLink {
     }
 }
 
-#[pyclass(name = "NodeFootnoteDefinition", get_all, set_all, eq, str)]
+#[pyclass(
+    name = "NodeFootnoteDefinition",
+    get_all,
+    set_all,
+    eq,
+    str,
+    from_py_object
+)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeFootnoteDefinition {
     pub name: String,
@@ -634,7 +648,14 @@ impl PyNodeFootnoteDefinition {
     }
 }
 
-#[pyclass(name = "NodeFootnoteReference", get_all, set_all, eq, str)]
+#[pyclass(
+    name = "NodeFootnoteReference",
+    get_all,
+    set_all,
+    eq,
+    str,
+    from_py_object
+)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeFootnoteReference {
     pub name: String,
@@ -683,7 +704,7 @@ impl PyNodeFootnoteReference {
     }
 }
 
-#[pyclass(name = "NodeWikiLink", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeWikiLink", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeWikiLink {
     pub url: String,
@@ -712,7 +733,7 @@ impl PyNodeWikiLink {
     }
 }
 
-#[pyclass(name = "NodeShortCode", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeShortCode", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeShortCode {
     pub code: String,
@@ -748,7 +769,7 @@ impl PyNodeShortCode {
     }
 }
 
-#[pyclass(name = "NodeMath", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeMath", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeMath {
     pub dollar_math: bool,
@@ -794,7 +815,14 @@ impl PyNodeMath {
     }
 }
 
-#[pyclass(name = "NodeMultilineBlockQuote", get_all, set_all, eq, str)]
+#[pyclass(
+    name = "NodeMultilineBlockQuote",
+    get_all,
+    set_all,
+    eq,
+    str,
+    from_py_object
+)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct PyNodeMultilineBlockQuote {
     pub fence_length: usize,
@@ -837,7 +865,7 @@ impl PyNodeMultilineBlockQuote {
     }
 }
 
-#[pyclass(name = "AlertType", eq, eq_int, str)]
+#[pyclass(name = "AlertType", eq, eq_int, str, from_py_object)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PyAlertType {
     Note,
@@ -865,7 +893,7 @@ impl From<AlertType> for PyAlertType {
     }
 }
 
-#[pyclass(name = "NodeAlert", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeAlert", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeAlert {
     pub alert_type: PyAlertType,
@@ -923,7 +951,7 @@ impl PyNodeAlert {
     }
 }
 
-#[pyclass(name = "NodeBlockDirective", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeBlockDirective", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeBlockDirective {
     pub fence_length: usize,
@@ -969,7 +997,7 @@ impl PyNodeBlockDirective {
     }
 }
 
-#[pyclass(name = "HeexNode", subclass, eq, str)]
+#[pyclass(name = "HeexNode", subclass, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNode {}
 
@@ -990,7 +1018,7 @@ impl PyHeexNode {
     }
 }
 
-#[pyclass(name = "HeexNodeDirective", extends=PyHeexNode, eq, str)]
+#[pyclass(name = "HeexNodeDirective", extends=PyHeexNode, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeDirective {}
 
@@ -1014,15 +1042,15 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeDirective {
 #[pymethods]
 impl PyHeexNodeDirective {
     #[new]
-    pub fn new() -> (Self, PyHeexNode) {
-        (Self {}, PyHeexNode::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyHeexNode::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("HeexNodeDirective()".to_string())
     }
 }
 
-#[pyclass(name = "HeexNodeComment", extends=PyHeexNode, eq, str)]
+#[pyclass(name = "HeexNodeComment", extends=PyHeexNode, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeComment {}
 
@@ -1046,15 +1074,15 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeComment {
 #[pymethods]
 impl PyHeexNodeComment {
     #[new]
-    pub fn new() -> (Self, PyHeexNode) {
-        (Self {}, PyHeexNode::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyHeexNode::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("HeexNodeComment()".to_string())
     }
 }
 
-#[pyclass(name = "HeexNodeMultilineComment", extends=PyHeexNode, eq, str)]
+#[pyclass(name = "HeexNodeMultilineComment", extends=PyHeexNode, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeMultilineComment {}
 
@@ -1078,15 +1106,15 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeMultilineComment {
 #[pymethods]
 impl PyHeexNodeMultilineComment {
     #[new]
-    pub fn new() -> (Self, PyHeexNode) {
-        (Self {}, PyHeexNode::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyHeexNode::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("HeexNodeMultilineComment()".to_string())
     }
 }
 
-#[pyclass(name = "HeexNodeExpression", extends=PyHeexNode, eq, str)]
+#[pyclass(name = "HeexNodeExpression", extends=PyHeexNode, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeExpression {}
 
@@ -1110,15 +1138,15 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeExpression {
 #[pymethods]
 impl PyHeexNodeExpression {
     #[new]
-    pub fn new() -> (Self, PyHeexNode) {
-        (Self {}, PyHeexNode::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyHeexNode::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("HeexNodeExpression()".to_string())
     }
 }
 
-#[pyclass(name = "HeexNodeTag", extends=PyHeexNode, get_all, set_all, eq, str)]
+#[pyclass(name = "HeexNodeTag", extends=PyHeexNode, get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyHeexNodeTag {
     pub tag: String,
@@ -1144,15 +1172,15 @@ impl<'py> IntoPyObject<'py> for PyHeexNodeTag {
 #[pymethods]
 impl PyHeexNodeTag {
     #[new]
-    pub fn new(tag: String) -> (Self, PyHeexNode) {
-        (Self { tag }, PyHeexNode::new())
+    pub fn new(tag: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyHeexNode::new()).add_subclass(Self { tag })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("HeexNodeTag(tag={})", self.tag))
     }
 }
 
-#[pyclass(name = "NodeHeexBlock", get_all, set_all, eq, str)]
+#[pyclass(name = "NodeHeexBlock", get_all, set_all, eq, str, from_py_object)]
 #[derive(Debug)]
 pub struct PyNodeHeexBlock {
     pub literal: String,
@@ -1251,8 +1279,8 @@ impl Display for PyDocument {
 #[pymethods]
 impl PyDocument {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Document()".to_string())
@@ -1274,8 +1302,8 @@ impl Display for PyFrontMatter {
 #[pymethods]
 impl PyFrontMatter {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("FrontMatter(value={})", self.value))
@@ -1295,8 +1323,8 @@ impl Display for PyBlockQuote {
 #[pymethods]
 impl PyBlockQuote {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("BlockQuote()".to_string())
@@ -1318,8 +1346,8 @@ impl Display for PyList {
 #[pymethods]
 impl PyList {
     #[new]
-    pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeList) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("List(value={:?})", self.value))
@@ -1341,8 +1369,8 @@ impl Display for PyItem {
 #[pymethods]
 impl PyItem {
     #[new]
-    pub fn new(value: PyNodeList) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeList) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Item(value={:?})", self.value))
@@ -1362,8 +1390,8 @@ impl Display for PyDescriptionList {
 #[pymethods]
 impl PyDescriptionList {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("DescriptionList()".to_string())
@@ -1385,8 +1413,8 @@ impl Display for PyDescriptionItem {
 #[pymethods]
 impl PyDescriptionItem {
     #[new]
-    pub fn new(value: PyNodeDescriptionItem) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeDescriptionItem) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("DescriptionItem(value={:?})", self.value))
@@ -1406,8 +1434,8 @@ impl Display for PyDescriptionTerm {
 #[pymethods]
 impl PyDescriptionTerm {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("DescriptionTerm()".to_string())
@@ -1427,8 +1455,8 @@ impl Display for PyDescriptionDetails {
 #[pymethods]
 impl PyDescriptionDetails {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("DescriptionDetails()".to_string())
@@ -1450,8 +1478,8 @@ impl Display for PyCodeBlock {
 #[pymethods]
 impl PyCodeBlock {
     #[new]
-    pub fn new(value: PyNodeCodeBlock) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeCodeBlock) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("CodeBlock(value={:?})", self.value))
@@ -1473,8 +1501,8 @@ impl Display for PyHtmlBlock {
 #[pymethods]
 impl PyHtmlBlock {
     #[new]
-    pub fn new(value: PyNodeHtmlBlock) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeHtmlBlock) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("HtmlBlock(value={:?})", self.value))
@@ -1496,8 +1524,8 @@ impl Display for PyHeexBlock {
 #[pymethods]
 impl PyHeexBlock {
     #[new]
-    pub fn new(value: PyNodeHeexBlock) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeHeexBlock) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("HeexBlock(value={:?})", self.value))
@@ -1517,8 +1545,8 @@ impl Display for PyParagraph {
 #[pymethods]
 impl PyParagraph {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Paragraph()".to_string())
@@ -1540,8 +1568,8 @@ impl Display for PyHeading {
 #[pymethods]
 impl PyHeading {
     #[new]
-    pub fn new(value: PyNodeHeading) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeHeading) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Heading(value={:?})", self.value))
@@ -1561,8 +1589,8 @@ impl Display for PyThematicBreak {
 #[pymethods]
 impl PyThematicBreak {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("ThematicBreak()".to_string())
@@ -1584,8 +1612,8 @@ impl Display for PyFootnoteDefinition {
 #[pymethods]
 impl PyFootnoteDefinition {
     #[new]
-    pub fn new(value: PyNodeFootnoteDefinition) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeFootnoteDefinition) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("FootnoteDefinition(value={:?})", self.value))
@@ -1607,8 +1635,8 @@ impl Display for PyTable {
 #[pymethods]
 impl PyTable {
     #[new]
-    pub fn new(value: PyNodeTable) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeTable) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Table(value={:?})", self.value))
@@ -1630,8 +1658,8 @@ impl Display for PyTableRow {
 #[pymethods]
 impl PyTableRow {
     #[new]
-    pub fn new(value: bool) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: bool) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("TableRow(value={})", self.value))
@@ -1651,8 +1679,8 @@ impl Display for PyTableCell {
 #[pymethods]
 impl PyTableCell {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("TableCell()".to_string())
@@ -1674,8 +1702,8 @@ impl Display for PyText {
 #[pymethods]
 impl PyText {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Text(value={})", self.value))
@@ -1697,8 +1725,8 @@ impl Display for PyTaskItem {
 #[pymethods]
 impl PyTaskItem {
     #[new]
-    pub fn new(value: PyNodeTaskItem) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeTaskItem) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("TaskItem(value={:?})", self.value))
@@ -1718,8 +1746,8 @@ impl Display for PySoftBreak {
 #[pymethods]
 impl PySoftBreak {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("SoftBreak()".to_string())
@@ -1739,8 +1767,8 @@ impl Display for PyLineBreak {
 #[pymethods]
 impl PyLineBreak {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("LineBreak()".to_string())
@@ -1762,8 +1790,8 @@ impl Display for PyCode {
 #[pymethods]
 impl PyCode {
     #[new]
-    pub fn new(value: PyNodeCode) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeCode) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Code(value={:?})", self.value))
@@ -1785,8 +1813,8 @@ impl Display for PyHtmlInline {
 #[pymethods]
 impl PyHtmlInline {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("HtmlInline(value={})", self.value))
@@ -1808,8 +1836,8 @@ impl Display for PyHeexInline {
 #[pymethods]
 impl PyHeexInline {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("HeexInline(value={})", self.value))
@@ -1831,8 +1859,8 @@ impl Display for PyRaw {
 #[pymethods]
 impl PyRaw {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Raw(value={})", self.value))
@@ -1852,8 +1880,8 @@ impl Display for PyEmph {
 #[pymethods]
 impl PyEmph {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Emph()".to_string())
@@ -1873,8 +1901,8 @@ impl Display for PyStrong {
 #[pymethods]
 impl PyStrong {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Strong()".to_string())
@@ -1894,8 +1922,8 @@ impl Display for PyStrikethrough {
 #[pymethods]
 impl PyStrikethrough {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Strikethrough()".to_string())
@@ -1915,8 +1943,8 @@ impl Display for PyHighlight {
 #[pymethods]
 impl PyHighlight {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Highlight()".to_string())
@@ -1936,8 +1964,8 @@ impl Display for PyInsert {
 #[pymethods]
 impl PyInsert {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Insert()".to_string())
@@ -1957,8 +1985,8 @@ impl Display for PySuperscript {
 #[pymethods]
 impl PySuperscript {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Superscript()".to_string())
@@ -1980,8 +2008,8 @@ impl Display for PyLink {
 #[pymethods]
 impl PyLink {
     #[new]
-    pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeLink) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Link(value={:?})", self.value))
@@ -2003,8 +2031,8 @@ impl Display for PyImage {
 #[pymethods]
 impl PyImage {
     #[new]
-    pub fn new(value: PyNodeLink) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeLink) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Image(value={:?})", self.value))
@@ -2026,8 +2054,8 @@ impl Display for PyFootnoteReference {
 #[pymethods]
 impl PyFootnoteReference {
     #[new]
-    pub fn new(value: PyNodeFootnoteReference) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeFootnoteReference) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("FootnoteReference(value={:?})", self.value))
@@ -2049,8 +2077,8 @@ impl Display for PyShortCode {
 #[pymethods]
 impl PyShortCode {
     #[new]
-    pub fn new(value: PyNodeShortCode) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeShortCode) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("ShortCode(value={:?})", self.value))
@@ -2072,8 +2100,8 @@ impl Display for PyMath {
 #[pymethods]
 impl PyMath {
     #[new]
-    pub fn new(value: PyNodeMath) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeMath) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Math(value={:?})", self.value))
@@ -2095,8 +2123,8 @@ impl Display for PyMultilineBlockQuote {
 #[pymethods]
 impl PyMultilineBlockQuote {
     #[new]
-    pub fn new(value: PyNodeMultilineBlockQuote) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeMultilineBlockQuote) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("MultilineBlockQuote(value={:?})", self.value))
@@ -2116,8 +2144,8 @@ impl Display for PyEscaped {
 #[pymethods]
 impl PyEscaped {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Escaped()".to_string())
@@ -2139,8 +2167,8 @@ impl Display for PyWikiLink {
 #[pymethods]
 impl PyWikiLink {
     #[new]
-    pub fn new(value: PyNodeWikiLink) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeWikiLink) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("WikiLink(value={:?})", self.value))
@@ -2160,8 +2188,8 @@ impl Display for PyUnderline {
 #[pymethods]
 impl PyUnderline {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Underline()".to_string())
@@ -2181,8 +2209,8 @@ impl Display for PySubscript {
 #[pymethods]
 impl PySubscript {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Subscript()".to_string())
@@ -2202,8 +2230,8 @@ impl Display for PySpoileredText {
 #[pymethods]
 impl PySpoileredText {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("SpoileredText()".to_string())
@@ -2225,8 +2253,8 @@ impl Display for PyEscapedTag {
 #[pymethods]
 impl PyEscapedTag {
     #[new]
-    pub fn new(value: String) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: String) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("EscapedTag(value={})", self.value))
@@ -2248,8 +2276,8 @@ impl Display for PyAlert {
 #[pymethods]
 impl PyAlert {
     #[new]
-    pub fn new(value: PyNodeAlert) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeAlert) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("Alert(value={:?})", self.value))
@@ -2270,8 +2298,8 @@ impl Display for PySubtext {
 #[pymethods]
 impl PySubtext {
     #[new]
-    pub fn new() -> (Self, PyNodeValue) {
-        (Self {}, PyNodeValue::new())
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok("Subtext()".to_string())
@@ -2293,8 +2321,8 @@ impl Display for PyBlockDirective {
 #[pymethods]
 impl PyBlockDirective {
     #[new]
-    pub fn new(value: PyNodeBlockDirective) -> (Self, PyNodeValue) {
-        (Self { value }, PyNodeValue::new())
+    pub fn new(value: PyNodeBlockDirective) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
     }
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("BlockDirective(value={:?})", self.value))
