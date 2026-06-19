@@ -18,12 +18,8 @@ on:
 permissions:
   contents: read
 
-# Python versions to build wheels for
-python_versions: &python_versions
-  - "3.11"
-  - "3.12"
-  - "3.13"
-  - "3.14"
+env:
+  PYTHON_VERSIONS: '["3.11", "3.12", "3.13", "3.14"]'
 
 jobs:
   check-commit:
@@ -64,7 +60,7 @@ jobs:
             target: s390x
           - runner: ubuntu-22.04
             target: ppc64le
-        python-version: *python_versions
+        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,7 +93,7 @@ jobs:
             target: aarch64
           - runner: ubuntu-22.04
             target: armv7
-        python-version: *python_versions
+        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -126,7 +122,7 @@ jobs:
             target: x64
           - runner: windows-latest
             target: x86
-        python-version: *python_versions
+        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -155,7 +151,7 @@ jobs:
             target: x86_64
           - runner: macos-14
             target: aarch64
-        python-version: *python_versions
+        python-version: ${{ fromJSON(env.PYTHON_VERSIONS) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
