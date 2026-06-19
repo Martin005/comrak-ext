@@ -5,7 +5,7 @@ use comrak::options::{
 };
 
 /// Python class that mirrors Comrak’s `ExtensionOptions`
-#[pyclass(name = "ExtensionOptions", get_all, set_all, eq)]
+#[pyclass(name = "ExtensionOptions", get_all, frozen, eq)]
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyExtensionOptions {
     pub strikethrough: bool,
@@ -180,7 +180,7 @@ impl PyExtensionOptions {
 }
 
 /// Python class that mirrors Comrak’s `ParseOptions`
-#[pyclass(name = "ParseOptions", get_all, set_all, eq)]
+#[pyclass(name = "ParseOptions", get_all, frozen, eq)]
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyParseOptions {
     pub smart: bool,
@@ -260,7 +260,7 @@ pub enum PyListStyleType {
 }
 
 /// Python class that mirrors Comrak’s `RenderOptions`
-#[pyclass(name = "RenderOptions", get_all, set_all, eq)]
+#[pyclass(name = "RenderOptions", get_all, frozen, eq)]
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyRenderOptions {
     pub hardbreaks: bool,
