@@ -405,7 +405,7 @@ wheels = [
 
 [[package]]
 name = "pdm"
-version = "2.27.0"
+version = "2.28.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "blinker" },
@@ -431,9 +431,9 @@ dependencies = [
     { name = "unearth" },
     { name = "virtualenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/c7/f7e256e8e82e2dc535d466dcb7731a1f569de0c71e9cb4006ff83d3d245f/pdm-2.27.0.tar.gz", hash = "sha256:dbfbc484065d0150fa5b29484ead908354313d8699cf74c099d4531826bd04de", size = 2686064, upload-time = "2026-05-21T07:08:18.232Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/d9/dd3739cb451b3ebe95ce27868e145fb108b8fc0d728d0768c6f3e51a83a0/pdm-2.28.0.tar.gz", hash = "sha256:ca7d21548955086985070d2fe4334a55e59093a466b25eebc6bb0769a0539e89", size = 2693556, upload-time = "2026-06-23T01:50:25.895Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/ed/1ce51c70fa3fed5eb332354607052c785a83d43a52ef362c31658a977940/pdm-2.27.0-py3-none-any.whl", hash = "sha256:2f56c4a8f01809564430fb35e850c0b9f56f45e71f272b35dece4db0d558a3aa", size = 304059, upload-time = "2026-05-21T07:08:16.339Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/c9/e987befe00d0d3a451e443b8d86b4c68597fc2b3fcce588d474052f614a6/pdm-2.28.0-py3-none-any.whl", hash = "sha256:c173f0a5801bccdec73944abe86288acd90ca2eebaeded503d7511586d2b6a27", size = 307331, upload-time = "2026-06-23T01:50:23.973Z" },
 ]
 
 [[package]]
