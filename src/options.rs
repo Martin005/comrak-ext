@@ -1,7 +1,9 @@
 use pyo3::prelude::*;
+use std::fmt::Display;
 
 use comrak::options::{
-    Extension as ComrakExtensionOptions, Parse as ComrakParseOptions, Render as ComrakRenderOptions,
+    AlertStyleType, Extension as ComrakExtensionOptions, Parse as ComrakParseOptions,
+    Render as ComrakRenderOptions,
 };
 
 /// Python class that mirrors Comrak’s `ExtensionOptions`
@@ -23,6 +25,7 @@ pub struct PyExtensionOptions {
     pub multiline_block_quotes: bool,
     pub alerts: bool,
     pub math_dollars: bool,
+    pub math_latex: bool,
     pub math_code: bool,
     pub shortcodes: bool, // if your comrak_lib has the "shortcodes" feature
     pub wikilinks_title_after_pipe: bool,
@@ -37,6 +40,10 @@ pub struct PyExtensionOptions {
     pub insert: bool,
     pub phoenix_heex: bool,
     pub block_directive: bool,
+    pub header_attributes: bool,
+    pub fenced_code_attributes: bool,
+    pub inline_code_attributes: bool,
+    pub link_attributes: bool,
 }
 
 impl PyExtensionOptions {
@@ -57,6 +64,7 @@ impl PyExtensionOptions {
         opts.multiline_block_quotes = self.multiline_block_quotes;
         opts.alerts = self.alerts;
         opts.math_dollars = self.math_dollars;
+        opts.math_latex = self.math_latex;
         opts.math_code = self.math_code;
         opts.shortcodes = self.shortcodes;
         opts.wikilinks_title_after_pipe = self.wikilinks_title_after_pipe;
@@ -71,6 +79,10 @@ impl PyExtensionOptions {
         opts.insert = self.insert;
         opts.phoenix_heex = self.phoenix_heex;
         opts.block_directive = self.block_directive;
+        opts.header_attributes = self.header_attributes;
+        opts.fenced_code_attributes = self.fenced_code_attributes;
+        opts.inline_code_attributes = self.inline_code_attributes;
+        opts.link_attributes = self.link_attributes;
     }
 }
 
@@ -93,6 +105,7 @@ impl PyExtensionOptions {
         multiline_block_quotes=None,
         alerts=None,
         math_dollars=None,
+        math_latex=None,
         math_code=None,
         shortcodes=None, // if your comrak_lib has the "shortcodes" feature
         wikilinks_title_after_pipe=None,
@@ -107,6 +120,10 @@ impl PyExtensionOptions {
         insert=None,
         phoenix_heex=None,
         block_directive=None,
+        header_attributes=None,
+        fenced_code_attributes=None,
+        inline_code_attributes=None,
+        link_attributes=None,
     ))]
     pub fn new(
         strikethrough: Option<bool>,
@@ -124,6 +141,7 @@ impl PyExtensionOptions {
         multiline_block_quotes: Option<bool>,
         alerts: Option<bool>,
         math_dollars: Option<bool>,
+        math_latex: Option<bool>,
         math_code: Option<bool>,
         shortcodes: Option<bool>, // if your comrak_lib has the "shortcodes" feature
         wikilinks_title_after_pipe: Option<bool>,
@@ -138,6 +156,10 @@ impl PyExtensionOptions {
         insert: Option<bool>,
         phoenix_heex: Option<bool>,
         block_directive: Option<bool>,
+        header_attributes: Option<bool>,
+        fenced_code_attributes: Option<bool>,
+        inline_code_attributes: Option<bool>,
+        link_attributes: Option<bool>,
     ) -> Self {
         let defaults = ComrakExtensionOptions::default();
         Self {
@@ -159,6 +181,7 @@ impl PyExtensionOptions {
                 .unwrap_or(defaults.multiline_block_quotes),
             alerts: alerts.unwrap_or(defaults.alerts),
             math_dollars: math_dollars.unwrap_or(defaults.math_dollars),
+            math_latex: math_latex.unwrap_or(defaults.math_latex),
             math_code: math_code.unwrap_or(defaults.math_code),
             shortcodes: shortcodes.unwrap_or(defaults.shortcodes),
             wikilinks_title_after_pipe: wikilinks_title_after_pipe
@@ -175,6 +198,12 @@ impl PyExtensionOptions {
             insert: insert.unwrap_or(defaults.insert),
             phoenix_heex: phoenix_heex.unwrap_or(defaults.phoenix_heex),
             block_directive: block_directive.unwrap_or(defaults.block_directive),
+            header_attributes: header_attributes.unwrap_or(defaults.header_attributes),
+            fenced_code_attributes: fenced_code_attributes
+                .unwrap_or(defaults.fenced_code_attributes),
+            inline_code_attributes: inline_code_attributes
+                .unwrap_or(defaults.inline_code_attributes),
+            link_attributes: link_attributes.unwrap_or(defaults.link_attributes),
         }
     }
 }
@@ -259,6 +288,28 @@ pub enum PyListStyleType {
     Star = 42,
 }
 
+#[pyclass(name = "AlertStyleType", eq, eq_int, str, from_py_object)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum PyAlertStyleType {
+    Specific,
+    Semantic,
+}
+
+impl Display for PyAlertStyleType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "AlertStyleType::{:?}", self)
+    }
+}
+
+impl From<AlertStyleType> for PyAlertStyleType {
+    fn from(d: AlertStyleType) -> Self {
+        match d {
+            AlertStyleType::Specific => PyAlertStyleType::Specific,
+            AlertStyleType::Semantic => PyAlertStyleType::Semantic,
+        }
+    }
+}
+
 /// Python class that mirrors Comrak’s `RenderOptions`
 #[pyclass(name = "RenderOptions", get_all, frozen, eq, from_py_object)]
 #[derive(Clone, PartialEq, Eq)]
@@ -277,6 +328,7 @@ pub struct PyRenderOptions {
     pub prefer_fenced: bool,
     pub figure_with_caption: bool,
     pub tasklist_classes: bool,
+    pub alert_style: PyAlertStyleType,
     pub ol_width: usize,
     pub experimental_minimize_commonmark: bool,
     pub compact_html: bool,
@@ -304,6 +356,10 @@ impl PyRenderOptions {
         opts.prefer_fenced = self.prefer_fenced;
         opts.figure_with_caption = self.figure_with_caption;
         opts.tasklist_classes = self.tasklist_classes;
+        opts.alert_style = match self.alert_style {
+            PyAlertStyleType::Specific => comrak::options::AlertStyleType::Specific,
+            PyAlertStyleType::Semantic => comrak::options::AlertStyleType::Semantic,
+        };
         opts.ol_width = self.ol_width;
         opts.experimental_minimize_commonmark = self.experimental_minimize_commonmark;
         opts.compact_html = self.compact_html;
@@ -328,6 +384,7 @@ impl PyRenderOptions {
         prefer_fenced=None,
         figure_with_caption=None,
         tasklist_classes=None,
+        alert_style=None,
         ol_width=None,
         experimental_minimize_commonmark=None,
         compact_html=None,
@@ -347,6 +404,7 @@ impl PyRenderOptions {
         prefer_fenced: Option<bool>,
         figure_with_caption: Option<bool>,
         tasklist_classes: Option<bool>,
+        alert_style: Option<PyAlertStyleType>,
         ol_width: Option<usize>,
         experimental_minimize_commonmark: Option<bool>,
         compact_html: Option<bool>,
@@ -371,6 +429,10 @@ impl PyRenderOptions {
             prefer_fenced: prefer_fenced.unwrap_or(defaults.prefer_fenced),
             figure_with_caption: figure_with_caption.unwrap_or(defaults.figure_with_caption),
             tasklist_classes: tasklist_classes.unwrap_or(defaults.tasklist_classes),
+            alert_style: alert_style.unwrap_or(match defaults.alert_style {
+                comrak::options::AlertStyleType::Specific => PyAlertStyleType::Specific,
+                comrak::options::AlertStyleType::Semantic => PyAlertStyleType::Semantic,
+            }),
             ol_width: ol_width.unwrap_or(defaults.ol_width),
             experimental_minimize_commonmark: experimental_minimize_commonmark
                 .unwrap_or(defaults.experimental_minimize_commonmark),
