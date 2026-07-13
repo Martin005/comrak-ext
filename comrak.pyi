@@ -35,6 +35,10 @@ class ListStyleType(Enum):
     Plus = 43
     Star = 42
 
+class AlertStyleType(Enum):
+    Specific = 1
+    Semantic = 2
+
 class NodeCode:
     num_backticks: int
     literal: str
@@ -406,6 +410,7 @@ class ExtensionOptions:
     multiline_block_quotes: bool
     alerts: bool
     math_dollars: bool
+    math_latex: bool
     math_code: bool
     shortcodes: bool
     wikilinks_title_after_pipe: bool
@@ -420,6 +425,10 @@ class ExtensionOptions:
     insert: bool
     phoenix_heex: bool
     block_directive: bool
+    header_attributes: bool
+    fenced_code_attributes: bool
+    inline_code_attributes: bool
+    link_attributes: bool
     def __init__(
         self,
         strikethrough: bool = False,
@@ -437,6 +446,7 @@ class ExtensionOptions:
         multiline_block_quotes: bool = False,
         alerts: bool = False,
         math_dollars: bool = False,
+        math_latex: bool = False,
         math_code: bool = False,
         shortcodes: bool = False,
         wikilinks_title_after_pipe: bool = False,
@@ -451,6 +461,10 @@ class ExtensionOptions:
         insert: bool = False,
         phoenix_heex: bool = False,
         block_directive: bool = False,
+        header_attributes: bool = False,
+        fenced_code_attributes: bool = False,
+        inline_code_attributes: bool = False,
+        link_attributes: bool = False,
     ) -> None: ...
 
 class ParseOptions:
@@ -491,6 +505,7 @@ class RenderOptions:
     prefer_fenced: bool
     figure_with_caption: bool
     tasklist_classes: bool
+    alert_style: AlertStyleType
     ol_width: int
     experimental_minimize_commonmark: bool
     compact_html: bool
@@ -510,6 +525,7 @@ class RenderOptions:
         prefer_fenced: bool = False,
         figure_with_caption: bool = False,
         tasklist_classes: bool = False,
+        alert_style: AlertStyleType = AlertStyleType.Specific,
         ol_width: int = 0,
         experimental_minimize_commonmark: bool = False,
         compact_html: bool = False,
