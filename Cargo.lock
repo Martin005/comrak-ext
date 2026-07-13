@@ -226,7 +226,7 @@ dependencies = [
 
 [[package]]
 name = "comrak-ext"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "comrak",
  "pyo3",
