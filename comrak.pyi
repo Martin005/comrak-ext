@@ -1,13 +1,10 @@
-from typing import Optional, Generic, TypeVar
 from enum import Enum
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
-class NodeValue(Generic[T]):
-    pass
-
-class HeexNode(Generic[T]):
-    pass
+class NodeValue(Generic[T]): ...
+class HeexNode(Generic[T]): ...
 
 class ListDelimType(Enum):
     Period = 1
@@ -115,9 +112,9 @@ class NodeTable:
     ) -> None: ...
 
 class NodeTaskItem:
-    symbol: Optional[str]
+    symbol: str | None
     symbol_sourcepos: Sourcepos
-    def __init__(self, symbol: Optional[str], symbol_sourcepos: Sourcepos) -> None: ...
+    def __init__(self, symbol: str | None, symbol_sourcepos: Sourcepos) -> None: ...
 
 class NodeLink:
     url: str
@@ -160,14 +157,14 @@ class NodeMultilineBlockQuote:
 
 class NodeAlert:
     alert_type: AlertType
-    title: Optional[str]
+    title: str | None
     multiline: bool
     fence_length: int
     fence_offset: int
     def __init__(
         self,
         alert_type: AlertType,
-        title: Optional[str],
+        title: str | None,
         multiline: bool,
         fence_length: int,
         fence_offset: int,
@@ -384,13 +381,13 @@ class Sourcepos:
 class AstNode:
     node_value: NodeValue
     sourcepos: Sourcepos
-    parent: Optional[AstNode]
+    parent: AstNode | None
     children: list[AstNode]
     def __init__(
         self,
         node_value: NodeValue,
         sourcepos: Sourcepos,
-        parent: Optional[AstNode],
+        parent: AstNode | None,
         children: list[AstNode],
     ) -> None: ...
 
@@ -401,12 +398,12 @@ class ExtensionOptions:
     autolink: bool
     tasklist: bool
     superscript: bool
-    header_id_prefix: Optional[str]
+    header_id_prefix: str | None
     header_id_prefix_in_href: bool
     footnotes: bool
     inline_footnotes: bool
     description_lists: bool
-    front_matter_delimiter: Optional[str]
+    front_matter_delimiter: str | None
     multiline_block_quotes: bool
     alerts: bool
     math_dollars: bool
@@ -437,12 +434,12 @@ class ExtensionOptions:
         autolink: bool = False,
         tasklist: bool = False,
         superscript: bool = False,
-        header_id_prefix: Optional[str] = None,
+        header_id_prefix: str | None = None,
         header_id_prefix_in_href: bool = False,
         footnotes: bool = False,
         inline_footnotes: bool = False,
         description_lists: bool = False,
-        front_matter_delimiter: Optional[str] = None,
+        front_matter_delimiter: str | None = None,
         multiline_block_quotes: bool = False,
         alerts: bool = False,
         math_dollars: bool = False,
@@ -469,7 +466,7 @@ class ExtensionOptions:
 
 class ParseOptions:
     smart: bool
-    default_info_string: Optional[str]
+    default_info_string: str | None
     relaxed_tasklist_matching: bool
     tasklist_in_table: bool
     relaxed_autolinks: bool
@@ -480,7 +477,7 @@ class ParseOptions:
     def __init__(
         self,
         smart: bool = False,
-        default_info_string: Optional[str] = None,
+        default_info_string: str | None = None,
         relaxed_tasklist_matching: bool = False,
         tasklist_in_table: bool = False,
         relaxed_autolinks: bool = False,
@@ -533,43 +530,43 @@ class RenderOptions:
 
 def parse_document(
     text: str,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> AstNode: ...
 def markdown_to_commonmark(
     text: str,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
 def markdown_to_html(
     text: str,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
 def markdown_to_xml(
     text: str,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
 def format_commonmark(
     node: AstNode,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
 def format_html(
     node: AstNode,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
 def format_xml(
     node: AstNode,
-    extension_options: Optional[ExtensionOptions] = None,
-    parse_options: Optional[ParseOptions] = None,
-    render_options: Optional[RenderOptions] = None,
+    extension_options: ExtensionOptions | None = None,
+    parse_options: ParseOptions | None = None,
+    render_options: RenderOptions | None = None,
 ) -> str: ...
