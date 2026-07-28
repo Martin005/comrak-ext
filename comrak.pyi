@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import Generic, TypeVar
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
-class NodeValue(Generic[T]): ...
-class HeexNode(Generic[T]): ...
+class NodeValue(Generic[_T]): ...
+class HeexNode(Generic[_T]): ...
 
 class ListDelimType(Enum):
     Period = 1
