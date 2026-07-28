@@ -36,7 +36,7 @@ Parse Markdown into an abstract syntax tree (AST):
 ```python
 from comrak import ExtensionOptions, Document, Text, Paragraph, parse_document
 
-extension_options = ExtensionOptions(front_matter_delimiter = "---")
+extension_options = ExtensionOptions(front_matter_delimiter="---")
 
 md_content = """---
 This is a text in FrontMatter
@@ -52,7 +52,9 @@ assert len(x.children) == 2
 
 assert isinstance(x.children[0].node_value, FrontMatter)
 assert isinstance(x.children[0].node_value.value, str)
-assert x.children[0].node_value.value.strip() == "---\nThis is a text in FrontMatter\n---"
+assert (
+    x.children[0].node_value.value.strip() == "---\nThis is a text in FrontMatter\n---"
+)
 
 assert isinstance(x.children[1].node_value, Paragraph)
 assert len(x.children[1].children) == 1
@@ -85,6 +87,7 @@ Render Markdown to HTML:
 
 ```python
 from comrak import ExtensionOptions, markdown_to_html
+
 extension_options = ExtensionOptions()
 markdown_to_html("foo :smile:", extension_options)
 # '<p>foo :smile:</p>\n'
