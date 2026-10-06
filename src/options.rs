@@ -11,7 +11,6 @@ use comrak::options::{
 #[derive(Clone, PartialEq, Eq)]
 pub struct PyExtensionOptions {
     pub strikethrough: bool,
-    pub tagfilter: bool,
     pub table: bool,
     pub autolink: bool,
     pub tasklist: bool,
@@ -50,7 +49,6 @@ impl PyExtensionOptions {
     /// **Rust-only** helper to copy from `PyExtensionOptions` into a real `ComrakExtensionOptions`.
     pub fn update_extension_options(&self, opts: &mut ComrakExtensionOptions<'_>) {
         opts.strikethrough = self.strikethrough;
-        opts.tagfilter = self.tagfilter;
         opts.table = self.table;
         opts.autolink = self.autolink;
         opts.tasklist = self.tasklist;
@@ -91,7 +89,6 @@ impl PyExtensionOptions {
     #[new]
     #[pyo3(signature = (
         strikethrough=None,
-        tagfilter=None,
         table=None,
         autolink=None,
         tasklist=None,
@@ -127,7 +124,6 @@ impl PyExtensionOptions {
     ))]
     pub fn new(
         strikethrough: Option<bool>,
-        tagfilter: Option<bool>,
         table: Option<bool>,
         autolink: Option<bool>,
         tasklist: Option<bool>,
@@ -164,7 +160,6 @@ impl PyExtensionOptions {
         let defaults = ComrakExtensionOptions::default();
         Self {
             strikethrough: strikethrough.unwrap_or(defaults.strikethrough),
-            tagfilter: tagfilter.unwrap_or(defaults.tagfilter),
             table: table.unwrap_or(defaults.table),
             autolink: autolink.unwrap_or(defaults.autolink),
             tasklist: tasklist.unwrap_or(defaults.tasklist),
