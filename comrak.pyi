@@ -393,7 +393,6 @@ class AstNode:
 
 class ExtensionOptions:
     strikethrough: bool
-    tagfilter: bool
     table: bool
     autolink: bool
     tasklist: bool
@@ -429,7 +428,6 @@ class ExtensionOptions:
     def __init__(
         self,
         strikethrough: bool = False,
-        tagfilter: bool = False,
         table: bool = False,
         autolink: bool = False,
         tasklist: bool = False,
