@@ -708,28 +708,35 @@ impl PyNodeFootnoteReference {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeWikiLink {
     pub url: String,
+    pub embed: bool,
 }
 
 impl From<&NodeWikiLink> for PyNodeWikiLink {
     fn from(w: &NodeWikiLink) -> Self {
-        Self { url: w.url.clone() }
+        Self {
+            url: w.url.clone(),
+            embed: w.embed,
+        }
     }
 }
 
 impl Display for PyNodeWikiLink {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NodeWikiLink(url={})", self.url)
+        write!(f, "NodeWikiLink(url={}, embed={})", self.url, self.embed)
     }
 }
 
 #[pymethods]
 impl PyNodeWikiLink {
     #[new]
-    pub fn new(url: String) -> Self {
-        Self { url }
+    pub fn new(url: String, embed: bool) -> Self {
+        Self { url, embed }
     }
     fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("NodeWikiLink(url={})", self.url))
+        Ok(format!(
+            "NodeWikiLink(url={}, embed={})",
+            self.url, self.embed
+        ))
     }
 }
 
@@ -811,6 +818,77 @@ impl PyNodeMath {
         Ok(format!(
             "NodeMath(dollar_math={}, display_math={}, literal={})",
             self.dollar_math, self.display_math, self.literal
+        ))
+    }
+}
+
+#[pyclass(name = "NodeComment", get_all, set_all, eq, str, from_py_object)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyNodeComment {
+    pub literal: String,
+}
+
+impl From<&NodeComment> for PyNodeComment {
+    fn from(m: &NodeComment) -> Self {
+        Self {
+            literal: m.literal.clone(),
+        }
+    }
+}
+
+impl Display for PyNodeComment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NodeComment(literal={})", self.literal)
+    }
+}
+
+#[pymethods]
+impl PyNodeComment {
+    #[new]
+    pub fn new(literal: String) -> Self {
+        Self { literal }
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("NodeComment(literal={})", self.literal))
+    }
+}
+
+#[pyclass(name = "NodeCommentBlock", get_all, set_all, eq, str, from_py_object)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyNodeCommentBlock {
+    pub literal: String,
+    pub closed: bool,
+}
+
+impl From<&NodeCommentBlock> for PyNodeCommentBlock {
+    fn from(m: &NodeCommentBlock) -> Self {
+        Self {
+            literal: m.literal.clone(),
+            closed: m.closed,
+        }
+    }
+}
+
+impl Display for PyNodeCommentBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeCommentBlock(literal={}, closed={})",
+            self.literal, self.closed
+        )
+    }
+}
+
+#[pymethods]
+impl PyNodeCommentBlock {
+    #[new]
+    pub fn new(literal: String, closed: bool) -> Self {
+        Self { literal, closed }
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeCommentBlock(literal={}, closed={})",
+            self.literal, self.closed
         ))
     }
 }
@@ -2108,6 +2186,52 @@ impl PyMath {
     }
 }
 
+#[pyclass(name = "CommentInline", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
+pub struct PyCommentInline {
+    pub value: PyNodeComment,
+}
+
+impl Display for PyCommentInline {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CommentInline(value={:?})", self.value)
+    }
+}
+
+#[pymethods]
+impl PyCommentInline {
+    #[new]
+    pub fn new(value: PyNodeComment) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("CommentInline(value={:?})", self.value))
+    }
+}
+
+#[pyclass(name = "MultilineComment", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
+pub struct PyMultilineComment {
+    pub value: PyNodeCommentBlock,
+}
+
+impl Display for PyMultilineComment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "MultilineComment(value={:?})", self.value)
+    }
+}
+
+#[pymethods]
+impl PyMultilineComment {
+    #[new]
+    pub fn new(value: PyNodeCommentBlock) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("MultilineComment(value={:?})", self.value))
+    }
+}
+
 #[pyclass(name = "MultilineBlockQuote", extends=PyNodeValue, get_all, set_all, eq, str)]
 #[derive(PartialEq, Debug, Eq)]
 pub struct PyMultilineBlockQuote {
@@ -2884,6 +3008,26 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyNo
         .into_bound(py)
         .into_super()
         .unbind(),
+        comrak::nodes::NodeValue::CommentInline(c) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCommentInline {
+                value: PyNodeComment::from(c),
+            }),
+        )
+        .unwrap()
+        .into_bound(py)
+        .into_super()
+        .unbind(),
+        comrak::nodes::NodeValue::MultilineComment(m) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyMultilineComment {
+                value: PyNodeCommentBlock::from(m),
+            }),
+        )
+        .unwrap()
+        .into_bound(py)
+        .into_super()
+        .unbind(),
     }
 }
 
@@ -3214,6 +3358,7 @@ fn create_comrak_node_value<'a>(
     if let Ok(v) = any.extract::<pyo3::PyRef<PyWikiLink>>(py) {
         return comrak::nodes::NodeValue::WikiLink(NodeWikiLink {
             url: v.value.url.clone(),
+            embed: v.value.embed,
         });
     }
 

@@ -137,7 +137,8 @@ class NodeFootnoteReference:
 
 class NodeWikiLink:
     url: str
-    def __init__(self, url: str) -> None: ...
+    embed: bool
+    def __init__(self, url: str, embed: bool) -> None: ...
 
 class NodeShortCode:
     code: str
@@ -149,6 +150,15 @@ class NodeMath:
     display_math: bool
     literal: str
     def __init__(self, dollar_math: bool, display_math: bool, literal: str) -> None: ...
+
+class NodeComment:
+    iteral: str
+    def __init__(self, literal: str) -> None: ...
+
+class NodeCommentBlock:
+    literal: str
+    closed: bool
+    def __init__(self, literal: str, closed: bool) -> None: ...
 
 class NodeMultilineBlockQuote:
     fence_length: int
@@ -333,6 +343,14 @@ class Math(NodeValue[NodeMath]):
     value: NodeMath
     def __init__(self, value: NodeMath) -> None: ...
 
+class CommentInline(NodeValue[NodeComment]):
+    value: NodeComment
+    def __init__(self, value: NodeComment) -> None: ...
+
+class MultilineComment(NodeValue[NodeCommentBlock]):
+    value: NodeCommentBlock
+    def __init__(self, value: NodeCommentBlock) -> None: ...
+
 class MultilineBlockQuote(NodeValue[NodeMultilineBlockQuote]):
     value: NodeMultilineBlockQuote
     def __init__(self, value: NodeMultilineBlockQuote) -> None: ...
@@ -415,6 +433,7 @@ class ExtensionOptions:
     subscript: bool
     spoiler: bool
     greentext: bool
+    ofm_comments: bool
     cjk_friendly_emphasis: bool
     subtext: bool
     highlight: bool
@@ -450,6 +469,7 @@ class ExtensionOptions:
         subscript: bool = False,
         spoiler: bool = False,
         greentext: bool = False,
+        ofm_comments: bool = False,
         cjk_friendly_emphasis: bool = False,
         subtext: bool = False,
         highlight: bool = False,

@@ -11,13 +11,14 @@ use options::{PyExtensionOptions, PyListStyleType, PyParseOptions, PyRenderOptio
 mod astnode;
 use astnode::{
     PyAlert, PyAlertType, PyAstNode, PyBlockDirective, PyBlockQuote, PyCode, PyCodeBlock,
-    PyDescriptionDetails, PyDescriptionItem, PyDescriptionList, PyDescriptionTerm, PyDocument,
-    PyEmph, PyEscaped, PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter,
-    PyHeading, PyHeexBlock, PyHeexInline, PyHeexNode, PyHeexNodeComment, PyHeexNodeDirective,
-    PyHeexNodeExpression, PyHeexNodeMultilineComment, PyHeexNodeTag, PyHighlight, PyHtmlBlock,
-    PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType,
-    PyListType, PyMath, PyMultilineBlockQuote, PyNodeAlert, PyNodeBlockDirective, PyNodeCode,
-    PyNodeCodeBlock, PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference,
+    PyCommentInline, PyDescriptionDetails, PyDescriptionItem, PyDescriptionList, PyDescriptionTerm,
+    PyDocument, PyEmph, PyEscaped, PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference,
+    PyFrontMatter, PyHeading, PyHeexBlock, PyHeexInline, PyHeexNode, PyHeexNodeComment,
+    PyHeexNodeDirective, PyHeexNodeExpression, PyHeexNodeMultilineComment, PyHeexNodeTag,
+    PyHighlight, PyHtmlBlock, PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink,
+    PyList, PyListDelimType, PyListType, PyMath, PyMultilineBlockQuote, PyMultilineComment,
+    PyNodeAlert, PyNodeBlockDirective, PyNodeCode, PyNodeCodeBlock, PyNodeComment,
+    PyNodeCommentBlock, PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference,
     PyNodeHeading, PyNodeHeexBlock, PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath,
     PyNodeMultilineBlockQuote, PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue,
     PyNodeWikiLink, PyParagraph, PyRaw, PyShortCode, PySoftBreak, PySourcepos, PySpoileredText,
@@ -286,6 +287,8 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyEscapedTag>()?;
     m.add_class::<PyAlert>()?;
     m.add_class::<PyBlockDirective>()?;
+    m.add_class::<PyCommentInline>()?;
+    m.add_class::<PyMultilineComment>()?;
     m.add_class::<PyNodeCode>()?;
     m.add_class::<PyNodeHtmlBlock>()?;
     m.add_class::<PyListDelimType>()?;
@@ -302,6 +305,8 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyNodeWikiLink>()?;
     m.add_class::<PyNodeShortCode>()?;
     m.add_class::<PyNodeMath>()?;
+    m.add_class::<PyNodeComment>()?;
+    m.add_class::<PyNodeCommentBlock>()?;
     m.add_class::<PyNodeMultilineBlockQuote>()?;
     m.add_class::<PyAlertType>()?;
     m.add_class::<PyNodeAlert>()?;
