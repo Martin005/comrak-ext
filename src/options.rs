@@ -33,6 +33,7 @@ pub struct PyExtensionOptions {
     pub subscript: bool,
     pub spoiler: bool,
     pub greentext: bool,
+    pub ofm_comments: bool,
     pub cjk_friendly_emphasis: bool,
     pub subtext: bool,
     pub highlight: bool,
@@ -71,6 +72,7 @@ impl PyExtensionOptions {
         opts.subscript = self.subscript;
         opts.spoiler = self.spoiler;
         opts.greentext = self.greentext;
+        opts.ofm_comments = self.ofm_comments;
         opts.cjk_friendly_emphasis = self.cjk_friendly_emphasis;
         opts.subtext = self.subtext;
         opts.highlight = self.highlight;
@@ -111,6 +113,7 @@ impl PyExtensionOptions {
         subscript=None,
         spoiler=None,
         greentext=None,
+        ofm_comments=None,
         cjk_friendly_emphasis=None,
         subtext=None,
         highlight=None,
@@ -146,6 +149,7 @@ impl PyExtensionOptions {
         subscript: Option<bool>,
         spoiler: Option<bool>,
         greentext: Option<bool>,
+        ofm_comments: Option<bool>,
         cjk_friendly_emphasis: Option<bool>,
         subtext: Option<bool>,
         highlight: Option<bool>,
@@ -187,6 +191,7 @@ impl PyExtensionOptions {
             subscript: subscript.unwrap_or(defaults.subscript),
             spoiler: spoiler.unwrap_or(defaults.spoiler),
             greentext: greentext.unwrap_or(defaults.greentext),
+            ofm_comments: ofm_comments.unwrap_or(defaults.ofm_comments),
             cjk_friendly_emphasis: cjk_friendly_emphasis.unwrap_or(defaults.cjk_friendly_emphasis),
             subtext: subtext.unwrap_or(defaults.subtext),
             highlight: highlight.unwrap_or(defaults.highlight),
