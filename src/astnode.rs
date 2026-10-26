@@ -1029,6 +1029,77 @@ impl PyNodeAlert {
     }
 }
 
+#[pyclass(name = "CalloutFold", eq, eq_int, str, from_py_object)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum PyCalloutFold {
+    #[pyo3(name = "None_")] // named 'None_' because 'None' is reserved in Python
+    None,
+    Expanded,
+    Collapsed,
+}
+
+impl Display for PyCalloutFold {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CalloutFold::{:?}", self)
+    }
+}
+
+impl From<CalloutFold> for PyCalloutFold {
+    fn from(f: CalloutFold) -> Self {
+        match f {
+            CalloutFold::None => PyCalloutFold::None,
+            CalloutFold::Expanded => PyCalloutFold::Expanded,
+            CalloutFold::Collapsed => PyCalloutFold::Collapsed,
+        }
+    }
+}
+
+#[pyclass(name = "NodeCallout", get_all, set_all, eq, str, from_py_object)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PyNodeCallout {
+    pub callout_type: String,
+    pub metadata: Option<String>,
+    pub fold: PyCalloutFold,
+}
+
+impl From<&NodeCallout> for PyNodeCallout {
+    fn from(c: &NodeCallout) -> Self {
+        Self {
+            callout_type: c.callout_type.clone(),
+            metadata: c.metadata.clone(),
+            fold: PyCalloutFold::from(c.fold),
+        }
+    }
+}
+
+impl Display for PyNodeCallout {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "NodeCallout(callout_type={:?}, metadata={:?}, fold={:?})",
+            self.callout_type, self.metadata, self.fold
+        )
+    }
+}
+
+#[pymethods]
+impl PyNodeCallout {
+    #[new]
+    pub fn new(callout_type: String, metadata: Option<String>, fold: PyCalloutFold) -> Self {
+        Self {
+            callout_type,
+            metadata,
+            fold,
+        }
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!(
+            "NodeCallout(callout_type={:?}, metadata={:?}, fold={:?})",
+            self.callout_type, self.metadata, self.fold
+        ))
+    }
+}
+
 #[pyclass(name = "NodeBlockDirective", get_all, set_all, eq, str, from_py_object)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PyNodeBlockDirective {
@@ -2408,6 +2479,50 @@ impl PyAlert {
     }
 }
 
+#[pyclass(name = "Callout", extends=PyNodeValue, get_all, set_all, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
+pub struct PyCallout {
+    pub value: PyNodeCallout,
+}
+
+impl Display for PyCallout {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Callout(value={:?})", self.value)
+    }
+}
+
+#[pymethods]
+impl PyCallout {
+    #[new]
+    pub fn new(value: PyNodeCallout) -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self { value })
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("Callout(value={:?})", self.value))
+    }
+}
+
+#[pyclass(name = "CalloutTitle", extends=PyNodeValue, eq, str)]
+#[derive(PartialEq, Debug, Eq)]
+pub struct PyCalloutTitle {}
+
+impl Display for PyCalloutTitle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CalloutTitle()")
+    }
+}
+
+#[pymethods]
+impl PyCalloutTitle {
+    #[new]
+    pub fn new() -> PyClassInitializer<Self> {
+        PyClassInitializer::from(PyNodeValue::new()).add_subclass(Self {})
+    }
+    fn __repr__(&self) -> PyResult<String> {
+        Ok("CalloutTitle()".to_string())
+    }
+}
+
 #[pyclass(name = "Subtext", extends=PyNodeValue, eq, str)]
 #[derive(PartialEq, Debug, Eq)]
 
@@ -2990,6 +3105,24 @@ fn create_py_node_value(py: Python, value: &comrak::nodes::NodeValue) -> Py<PyNo
         .into_bound(py)
         .into_super()
         .unbind(),
+        comrak::nodes::NodeValue::Callout(c) => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCallout {
+                value: PyNodeCallout::from(c.as_ref()),
+            }),
+        )
+        .unwrap()
+        .into_bound(py)
+        .into_super()
+        .unbind(),
+        comrak::nodes::NodeValue::CalloutTitle => Py::new(
+            py,
+            PyClassInitializer::from(PyNodeValue {}).add_subclass(PyCalloutTitle {}),
+        )
+        .unwrap()
+        .into_bound(py)
+        .into_super()
+        .unbind(),
         comrak::nodes::NodeValue::Subtext => Py::new(
             py,
             PyClassInitializer::from(PyNodeValue {}).add_subclass(PySubtext {}),
@@ -3395,6 +3528,25 @@ fn create_comrak_node_value<'a>(
             fence_length: a.fence_length,
             fence_offset: a.fence_offset,
         }));
+    }
+
+    if let Ok(v) = any.extract::<pyo3::PyRef<PyCallout>>(py) {
+        let c = &v.value;
+        let fold = match c.fold {
+            PyCalloutFold::None => CalloutFold::None,
+            PyCalloutFold::Expanded => CalloutFold::Expanded,
+            PyCalloutFold::Collapsed => CalloutFold::Collapsed,
+        };
+
+        return comrak::nodes::NodeValue::Callout(Box::new(NodeCallout {
+            callout_type: c.callout_type.clone(),
+            metadata: c.metadata.clone(),
+            fold,
+        }));
+    }
+
+    if let Ok(_v) = any.extract::<pyo3::PyRef<PyCalloutTitle>>(py) {
+        return comrak::nodes::NodeValue::CalloutTitle;
     }
 
     if let Ok(_v) = any.extract::<pyo3::PyRef<PySubtext>>(py) {
