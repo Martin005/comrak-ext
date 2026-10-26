@@ -23,6 +23,7 @@ pub struct PyExtensionOptions {
     pub front_matter_delimiter: Option<String>,
     pub multiline_block_quotes: bool,
     pub alerts: bool,
+    pub ofm_callouts: bool,
     pub math_dollars: bool,
     pub math_latex: bool,
     pub math_code: bool,
@@ -62,6 +63,7 @@ impl PyExtensionOptions {
         opts.front_matter_delimiter = self.front_matter_delimiter.clone();
         opts.multiline_block_quotes = self.multiline_block_quotes;
         opts.alerts = self.alerts;
+        opts.ofm_callouts = self.ofm_callouts;
         opts.math_dollars = self.math_dollars;
         opts.math_latex = self.math_latex;
         opts.math_code = self.math_code;
@@ -103,6 +105,7 @@ impl PyExtensionOptions {
         front_matter_delimiter=None,
         multiline_block_quotes=None,
         alerts=None,
+        ofm_callouts=None,
         math_dollars=None,
         math_latex=None,
         math_code=None,
@@ -139,6 +142,7 @@ impl PyExtensionOptions {
         front_matter_delimiter: Option<String>,
         multiline_block_quotes: Option<bool>,
         alerts: Option<bool>,
+        ofm_callouts: Option<bool>,
         math_dollars: Option<bool>,
         math_latex: Option<bool>,
         math_code: Option<bool>,
@@ -179,6 +183,7 @@ impl PyExtensionOptions {
             multiline_block_quotes: multiline_block_quotes
                 .unwrap_or(defaults.multiline_block_quotes),
             alerts: alerts.unwrap_or(defaults.alerts),
+            ofm_callouts: ofm_callouts.unwrap_or(defaults.ofm_callouts),
             math_dollars: math_dollars.unwrap_or(defaults.math_dollars),
             math_latex: math_latex.unwrap_or(defaults.math_latex),
             math_code: math_code.unwrap_or(defaults.math_code),

@@ -10,20 +10,21 @@ mod options;
 use options::{PyExtensionOptions, PyListStyleType, PyParseOptions, PyRenderOptions};
 mod astnode;
 use astnode::{
-    PyAlert, PyAlertType, PyAstNode, PyBlockDirective, PyBlockQuote, PyCode, PyCodeBlock,
-    PyCommentInline, PyDescriptionDetails, PyDescriptionItem, PyDescriptionList, PyDescriptionTerm,
-    PyDocument, PyEmph, PyEscaped, PyEscapedTag, PyFootnoteDefinition, PyFootnoteReference,
-    PyFrontMatter, PyHeading, PyHeexBlock, PyHeexInline, PyHeexNode, PyHeexNodeComment,
-    PyHeexNodeDirective, PyHeexNodeExpression, PyHeexNodeMultilineComment, PyHeexNodeTag,
-    PyHighlight, PyHtmlBlock, PyHtmlInline, PyImage, PyItem, PyLineBreak, PyLineColumn, PyLink,
-    PyList, PyListDelimType, PyListType, PyMath, PyMultilineBlockQuote, PyMultilineComment,
-    PyNodeAlert, PyNodeBlockDirective, PyNodeCode, PyNodeCodeBlock, PyNodeComment,
-    PyNodeCommentBlock, PyNodeDescriptionItem, PyNodeFootnoteDefinition, PyNodeFootnoteReference,
-    PyNodeHeading, PyNodeHeexBlock, PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath,
-    PyNodeMultilineBlockQuote, PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue,
-    PyNodeWikiLink, PyParagraph, PyRaw, PyShortCode, PySoftBreak, PySourcepos, PySpoileredText,
-    PyStrikethrough, PyStrong, PySubscript, PySubtext, PySuperscript, PyTable, PyTableAlignment,
-    PyTableCell, PyTableRow, PyTaskItem, PyText, PyThematicBreak, PyUnderline, PyWikiLink,
+    PyAlert, PyAlertType, PyAstNode, PyBlockDirective, PyBlockQuote, PyCallout, PyCalloutFold,
+    PyCalloutTitle, PyCode, PyCodeBlock, PyCommentInline, PyDescriptionDetails, PyDescriptionItem,
+    PyDescriptionList, PyDescriptionTerm, PyDocument, PyEmph, PyEscaped, PyEscapedTag,
+    PyFootnoteDefinition, PyFootnoteReference, PyFrontMatter, PyHeading, PyHeexBlock, PyHeexInline,
+    PyHeexNode, PyHeexNodeComment, PyHeexNodeDirective, PyHeexNodeExpression,
+    PyHeexNodeMultilineComment, PyHeexNodeTag, PyHighlight, PyHtmlBlock, PyHtmlInline, PyImage,
+    PyItem, PyLineBreak, PyLineColumn, PyLink, PyList, PyListDelimType, PyListType, PyMath,
+    PyMultilineBlockQuote, PyMultilineComment, PyNodeAlert, PyNodeBlockDirective, PyNodeCallout,
+    PyNodeCode, PyNodeCodeBlock, PyNodeComment, PyNodeCommentBlock, PyNodeDescriptionItem,
+    PyNodeFootnoteDefinition, PyNodeFootnoteReference, PyNodeHeading, PyNodeHeexBlock,
+    PyNodeHtmlBlock, PyNodeLink, PyNodeList, PyNodeMath, PyNodeMultilineBlockQuote,
+    PyNodeShortCode, PyNodeTable, PyNodeTaskItem, PyNodeValue, PyNodeWikiLink, PyParagraph, PyRaw,
+    PyShortCode, PySoftBreak, PySourcepos, PySpoileredText, PyStrikethrough, PyStrong, PySubscript,
+    PySubtext, PySuperscript, PyTable, PyTableAlignment, PyTableCell, PyTableRow, PyTaskItem,
+    PyText, PyThematicBreak, PyUnderline, PyWikiLink,
 };
 
 /// Parse a Markdown string into a document structure and return as PyAstNode.
@@ -286,6 +287,8 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySpoileredText>()?;
     m.add_class::<PyEscapedTag>()?;
     m.add_class::<PyAlert>()?;
+    m.add_class::<PyCallout>()?;
+    m.add_class::<PyCalloutTitle>()?;
     m.add_class::<PyBlockDirective>()?;
     m.add_class::<PyCommentInline>()?;
     m.add_class::<PyMultilineComment>()?;
@@ -310,6 +313,8 @@ fn comrak(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyNodeMultilineBlockQuote>()?;
     m.add_class::<PyAlertType>()?;
     m.add_class::<PyNodeAlert>()?;
+    m.add_class::<PyCalloutFold>()?;
+    m.add_class::<PyNodeCallout>()?;
     m.add_class::<PyNodeBlockDirective>()?;
     m.add_class::<PyAstNode>()?;
     m.add_class::<PyHeexNode>()?;

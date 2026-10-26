@@ -36,6 +36,11 @@ class AlertStyleType(Enum):
     Specific = 1
     Semantic = 2
 
+class CalloutFold(Enum):
+    None_ = 1
+    Expanded = 2
+    Collapsed = 3
+
 class NodeCode:
     num_backticks: int
     literal: str
@@ -178,6 +183,17 @@ class NodeAlert:
         multiline: bool,
         fence_length: int,
         fence_offset: int,
+    ) -> None: ...
+
+class NodeCallout:
+    callout_type: str
+    metadata: str | None
+    fold: CalloutFold
+    def __init__(
+        self,
+        callout_type: str,
+        metadata: str | None,
+        fold: CalloutFold,
     ) -> None: ...
 
 class NodeBlockDirective:
@@ -379,6 +395,13 @@ class Alert(NodeValue[NodeAlert]):
     value: NodeAlert
     def __init__(self, value: NodeAlert) -> None: ...
 
+class Callout(NodeValue[NodeCallout]):
+    value: NodeCallout
+    def __init__(self, value: NodeCallout) -> None: ...
+
+class CalloutTitle(NodeValue[None]):
+    def __init__(self) -> None: ...
+
 class Subtext(NodeValue[None]):
     def __init__(self) -> None: ...
 
@@ -423,6 +446,7 @@ class ExtensionOptions:
     front_matter_delimiter: str | None
     multiline_block_quotes: bool
     alerts: bool
+    ofm_callouts: bool
     math_dollars: bool
     math_latex: bool
     math_code: bool
@@ -459,6 +483,7 @@ class ExtensionOptions:
         front_matter_delimiter: str | None = None,
         multiline_block_quotes: bool = False,
         alerts: bool = False,
+        ofm_callouts: bool = False,
         math_dollars: bool = False,
         math_latex: bool = False,
         math_code: bool = False,
