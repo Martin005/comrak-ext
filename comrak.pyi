@@ -453,6 +453,7 @@ class ExtensionOptions:
     shortcodes: bool
     wikilinks_title_after_pipe: bool
     wikilinks_title_before_pipe: bool
+    wikilinks_ignore_embeds: bool
     underline: bool
     subscript: bool
     spoiler: bool
@@ -490,6 +491,7 @@ class ExtensionOptions:
         shortcodes: bool = False,
         wikilinks_title_after_pipe: bool = False,
         wikilinks_title_before_pipe: bool = False,
+        wikilinks_ignore_embed: bool = False,
         underline: bool = False,
         subscript: bool = False,
         spoiler: bool = False,

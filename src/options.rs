@@ -30,6 +30,7 @@ pub struct PyExtensionOptions {
     pub shortcodes: bool, // if your comrak_lib has the "shortcodes" feature
     pub wikilinks_title_after_pipe: bool,
     pub wikilinks_title_before_pipe: bool,
+    pub wikilinks_ignore_embeds: bool,
     pub underline: bool,
     pub subscript: bool,
     pub spoiler: bool,
@@ -70,6 +71,7 @@ impl PyExtensionOptions {
         opts.shortcodes = self.shortcodes;
         opts.wikilinks_title_after_pipe = self.wikilinks_title_after_pipe;
         opts.wikilinks_title_before_pipe = self.wikilinks_title_before_pipe;
+        opts.wikilinks_ignore_embeds = self.wikilinks_ignore_embeds;
         opts.underline = self.underline;
         opts.subscript = self.subscript;
         opts.spoiler = self.spoiler;
@@ -112,6 +114,7 @@ impl PyExtensionOptions {
         shortcodes=None, // if your comrak_lib has the "shortcodes" feature
         wikilinks_title_after_pipe=None,
         wikilinks_title_before_pipe=None,
+        wikilinks_ignore_embeds=None,
         underline=None,
         subscript=None,
         spoiler=None,
@@ -149,6 +152,7 @@ impl PyExtensionOptions {
         shortcodes: Option<bool>, // if your comrak_lib has the "shortcodes" feature
         wikilinks_title_after_pipe: Option<bool>,
         wikilinks_title_before_pipe: Option<bool>,
+        wikilinks_ignore_embeds: Option<bool>,
         underline: Option<bool>,
         subscript: Option<bool>,
         spoiler: Option<bool>,
@@ -192,6 +196,7 @@ impl PyExtensionOptions {
                 .unwrap_or(defaults.wikilinks_title_after_pipe),
             wikilinks_title_before_pipe: wikilinks_title_before_pipe
                 .unwrap_or(defaults.wikilinks_title_before_pipe),
+            wikilinks_ignore_embeds: wikilinks_ignore_embeds.unwrap_or(defaults.wikilinks_ignore_embeds),
             underline: underline.unwrap_or(defaults.underline),
             subscript: subscript.unwrap_or(defaults.subscript),
             spoiler: spoiler.unwrap_or(defaults.spoiler),
